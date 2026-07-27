@@ -320,3 +320,15 @@
 @media (max-width: 480px) {
   .dashboard-grid { grid-template-columns: 1fr; }
 }
+
+/* ====== Notifications ====== */
+.notif-dropdown { position: absolute; top: 100%; right: 1rem; width: 320px; background: var(--bg-card-solid); border: var(--glass-border); border-radius: var(--radius-md); box-shadow: var(--glass-shadow); z-index: 100; max-height: 400px; overflow-y: auto; }
+.notif-header { padding: 0.75rem 1rem; border-bottom: var(--glass-border); font-weight: bold; }
+.notif-item { padding: 0.75rem 1rem; border-bottom: var(--glass-border); cursor: pointer; transition: background var(--transition-fast); }
+.notif-item.unread { background: rgba(255, 71, 87, 0.05); }
+.notif-item:hover { background: var(--bg-hover); }
+.notif-title { font-size: 0.85rem; color: var(--text-main); }
+.notif-item.unread .notif-title { font-weight: bold; }
+.notif-message { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
+.notif-empty { padding: 1.5rem; text-align: center; color: var(--text-muted); font-size: 0.85rem; }
+@media (max-width: 768px) { .notif-dropdown { position: fixed; top: 70px; right: 10px; left: 10px; width: auto; max-width: none; } }

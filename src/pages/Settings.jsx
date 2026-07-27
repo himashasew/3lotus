@@ -9,13 +9,18 @@ export default function Settings() {
   const { t, i18n } = useTranslation();
   const { user, userProfile } = useAuth();
   const [displayName, setDisplayName] = useState(userProfile?.displayName || '');
+  const [fontSize, setFontSize] = useState(userProfile?.fontSize || 'medium');
   const [newPassword, setNewPassword] = useState('');
   const [message, setMessage] = useState({ text: '', type: '' });
 
   const saveProfile = async () => {
     try {
-      await updateDoc(doc(db, 'users', user.uid), { displayName });
+      await updateDoc(doc(db, 'users', user.uid), { displayName, fontSize });
       setMessage({ text: t('profileUpdated'), type: 'success' });
+      
+      // Update local state temporarily (AuthContext will pick up from DB soon, but good for instant feedback)
+      if (userProfile) userProfile.fontSize = fontSize;
+      
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);
     } catch (err) {
       setMessage({ text: 'Error: ' + err.message, type: 'error' });
@@ -59,6 +64,29 @@ export default function Settings() {
         <div className="form-group" style={{ marginBottom: '0.85rem' }}>
           <label>{t('role')}</label>
           <input value={userProfile?.role || ''} disabled />
+        </div>
+        <button className="btn-add" onClick={saveProfile}>{t('save')}</button>
+      </div>
+
+      {/* Display Settings */}
+      <div className="data-section">
+        <div className="data-section-header">
+          <h2>👁️ {t('displaySettings') || 'Display Settings'}</h2>
+        </div>
+        <div className="form-group" style={{ marginBottom: '0.85rem' }}>
+          <label>{t('fontSize') || 'Font Size'}</label>
+          <div style={{ display: 'flex', gap: '0.65rem', flexWrap: 'wrap' }}>
+            {[{ code: 'small', label: t('fontSmall') || 'Small' }, { code: 'medium', label: t('fontMedium') || 'Medium' }, { code: 'large', label: t('fontLarge') || 'Large' }].map(size => (
+              <button
+                key={size.code}
+                onClick={() => setFontSize(size.code)}
+                className={fontSize === size.code ? 'btn-add' : 'btn-cancel'}
+                style={{ padding: '0.5rem 1rem' }}
+              >
+                {size.label}
+              </button>
+            ))}
+          </div>
         </div>
         <button className="btn-add" onClick={saveProfile}>{t('save')}</button>
       </div>

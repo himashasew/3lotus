@@ -60,6 +60,18 @@ export function AuthProvider({ children }) {
     return () => unsubscribe();
   }, []);
 
+  // Apply font size preference
+  useEffect(() => {
+    if (userProfile?.fontSize) {
+      let size = '16px'; // medium default
+      if (userProfile.fontSize === 'small') size = '14px';
+      if (userProfile.fontSize === 'large') size = '18px';
+      document.documentElement.style.fontSize = size;
+    } else {
+      document.documentElement.style.fontSize = '16px';
+    }
+  }, [userProfile?.fontSize]);
+
   const login = (email, password) => {
     return signInWithEmailAndPassword(auth, email, password);
   };

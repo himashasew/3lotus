@@ -73,17 +73,17 @@ export default function Sidebar({ isOpen, onClose }) {
           )}
 
           {showNotif && (
-            <div className="notif-dropdown" style={{ position: 'absolute', top: '100%', right: '1rem', width: '280px', background: 'var(--bg-card-solid)', border: 'var(--glass-border)', borderRadius: 'var(--radius-md)', boxShadow: 'var(--glass-shadow)', zIndex: 100, maxHeight: '400px', overflowY: 'auto' }}>
-              <div style={{ padding: '0.75rem 1rem', borderBottom: 'var(--glass-border)', fontWeight: 'bold' }}>
+            <div className="notif-dropdown">
+              <div className="notif-header">
                 {t('notifications') || 'Notifications'}
               </div>
               {notifications.length > 0 ? notifications.map(n => (
-                <div key={n.id} onClick={() => markAsRead(n.id)} style={{ padding: '0.75rem 1rem', borderBottom: 'var(--glass-border)', background: n.read ? 'transparent' : 'rgba(255, 71, 87, 0.05)', cursor: 'pointer' }}>
-                  <div style={{ fontSize: '0.85rem', fontWeight: n.read ? 'normal' : 'bold', color: 'var(--text-main)' }}>{n.title}</div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '0.25rem' }}>{n.message}</div>
+                <div key={n.id} onClick={() => markAsRead(n.id)} className={`notif-item ${n.read ? 'read' : 'unread'}`}>
+                  <div className="notif-title">{n.title}</div>
+                  <div className="notif-message">{n.message}</div>
                 </div>
               )) : (
-                <div style={{ padding: '1rem', textAlign: 'center', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
+                <div className="notif-empty">
                   {t('noNotifications') || 'No notifications'}
                 </div>
               )}

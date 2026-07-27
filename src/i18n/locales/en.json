@@ -112,5 +112,10 @@
   "noNotifications": "No notifications",
   "recordStock": "Record Stock Transaction",
   "addStock": "➕ Add / Update Stock",
-  "productName": "Product / Item Name"
+  "productName": "Product / Item Name",
+  "displaySettings": "Display Settings",
+  "fontSize": "Font Size",
+  "fontSmall": "Small (A-)",
+  "fontMedium": "Medium (A)",
+  "fontLarge": "Large (A+)"
 }

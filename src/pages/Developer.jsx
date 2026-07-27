@@ -43,6 +43,11 @@ export default function Developer() {
     loadDevData();
   };
 
+  const changeUserFont = async (userId, newFont) => {
+    await updateDoc(doc(db, 'users', userId), { fontSize: newFont });
+    loadDevData();
+  };
+
   const deleteUser = async (userId) => {
     if (window.confirm(t('confirmDelete'))) {
       await deleteDoc(doc(db, 'users', userId));
@@ -114,6 +119,7 @@ export default function Developer() {
                 <th>{t('displayName')}</th>
                 <th>{t('email')}</th>
                 <th>{t('role')}</th>
+                <th>{t('fontSize') || 'Font'}</th>
                 <th>{t('actions')}</th>
               </tr>
             </thead>
@@ -129,6 +135,17 @@ export default function Developer() {
                       style={{ width: 'auto', padding: '0.35rem 0.5rem', fontSize: '0.8rem' }}
                     >
                       {allRoles.map(r => <option key={r.value} value={r.value}>{r.label}</option>)}
+                    </select>
+                  </td>
+                  <td>
+                    <select
+                      value={u.fontSize || 'medium'}
+                      onChange={e => changeUserFont(u.id, e.target.value)}
+                      style={{ width: 'auto', padding: '0.35rem 0.5rem', fontSize: '0.8rem' }}
+                    >
+                      <option value="small">{t('fontSmall') || 'Small'}</option>
+                      <option value="medium">{t('fontMedium') || 'Medium'}</option>
+                      <option value="large">{t('fontLarge') || 'Large'}</option>
                     </select>
                   </td>
                   <td>
