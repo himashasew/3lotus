@@ -70,6 +70,10 @@ select {
   cursor: pointer;
   appearance: auto;
 }
+option {
+  background-color: var(--bg-card-solid);
+  color: var(--text-main);
+}
 input:disabled, select:disabled {
   opacity: 0.5;
   cursor: not-allowed;
