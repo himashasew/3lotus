@@ -64,12 +64,12 @@
   margin-bottom: 1.75rem;
 }
 .login-logo img {
-  height: 64px;
-  width: 64px;
+  height: 84px;
+  width: 84px;
   object-fit: contain;
-  border-radius: 14px;
+  border-radius: 20px;
   border: 1px solid var(--border-color);
-  padding: 6px;
+  padding: 8px;
   background: var(--bg-input);
   filter: drop-shadow(0 0 12px rgba(255, 71, 87, 0.2));
 }

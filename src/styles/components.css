@@ -214,21 +214,21 @@
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 200;
-  padding: 1rem;
+  padding: 3rem 1rem;
+  overflow-y: auto;
   animation: fadeIn 0.15s ease;
 }
 .modal {
+  margin: auto;
   background: var(--bg-card-solid);
   border: var(--glass-border);
   border-radius: var(--radius-md);
   padding: 1.75rem;
   width: 100%;
   max-width: 520px;
-  max-height: 85vh;
-  overflow-y: auto;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
   animation: fadeInScale 0.2s ease;
 }

@@ -27,16 +27,16 @@
   border-bottom: var(--glass-border);
 }
 .sidebar-header img {
-  height: 36px;
-  width: 36px;
+  height: 48px;
+  width: 48px;
   object-fit: contain;
-  border-radius: 10px;
+  border-radius: 12px;
   border: 1px solid var(--border-color);
-  padding: 3px;
+  padding: 4px;
   background: var(--bg-input);
 }
 .sidebar-header h2 {
-  font-size: 1rem;
+  font-size: 1.25rem;
   font-weight: 700;
   background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
   -webkit-background-clip: text;
