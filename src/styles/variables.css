@@ -1,0 +1,51 @@
+:root {
+  /* Colors */
+  --color-primary: #ff4757;
+  --color-primary-hover: #ff6b81;
+  --color-secondary: #2ed573;
+  --color-accent: #ffa502;
+  --color-danger: #ff4757;
+  --color-purple: #a29bfe;
+
+  /* Dark Theme (Default) */
+  --bg-main: #0c0d12;
+  --bg-card: rgba(22, 23, 32, 0.85);
+  --bg-card-solid: #16171f;
+  --bg-input: rgba(255, 255, 255, 0.05);
+  --bg-hover: rgba(255, 255, 255, 0.04);
+  --text-main: #eef0f6;
+  --text-muted: #8b93a7;
+  --border-color: rgba(255, 255, 255, 0.08);
+
+  /* Glassmorphism */
+  --glass-border: 1px solid var(--border-color);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --glass-blur: blur(12px);
+
+  /* Typography */
+  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+
+  /* Radii */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  /* Transitions */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+}
+
+[data-theme="light"] {
+  --bg-main: #f0f2f5;
+  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-card-solid: #ffffff;
+  --bg-input: rgba(0, 0, 0, 0.04);
+  --bg-hover: rgba(0, 0, 0, 0.03);
+  --text-main: #1a1d26;
+  --text-muted: #6b7280;
+  --border-color: rgba(0, 0, 0, 0.1);
+
+  --glass-border: 1px solid var(--border-color);
+  --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+}

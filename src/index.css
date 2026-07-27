@@ -1,0 +1,66 @@
+@import './styles/global.css';
+@import './styles/layout.css';
+@import './styles/components.css';
+
+/* ====== Order Item Rows (inside modal) ====== */
+.order-item-row {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.order-item-product {
+  flex: 2;
+  min-width: 140px;
+}
+.order-item-qty {
+  flex: 0 0 70px;
+  text-align: center;
+}
+.order-item-subtotal {
+  flex: 0 0 100px;
+  text-align: right;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+.order-item-remove {
+  flex: 0 0 28px;
+  color: var(--color-danger) !important;
+  font-size: 0.9rem;
+  padding: 0.2rem;
+  border-radius: 4px;
+  transition: background var(--transition-fast);
+}
+.order-item-remove:hover {
+  background: rgba(255, 71, 87, 0.1);
+}
+.order-add-item-btn {
+  color: var(--color-primary) !important;
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.25rem;
+  padding: 0.3rem 0;
+}
+.order-total {
+  text-align: right;
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+  color: var(--text-main);
+}
+
+@media (max-width: 480px) {
+  .order-item-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .order-item-product,
+  .order-item-qty {
+    flex: 1;
+  }
+  .order-item-subtotal {
+    text-align: left;
+  }
+}
