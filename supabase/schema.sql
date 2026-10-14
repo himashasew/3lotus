@@ -153,3 +153,19 @@ end;
 $$;
 
 grant execute on function public.merge_doc(text, uuid, jsonb) to authenticated;
+
+-- ------------------------------------------------------ backfill (safe to re-run)
+-- Accounts created before this script ran have no profile. The oldest one becomes
+-- DEVELOPER (only when no profile exists yet); the rest become CLIENT.
+insert into public.profiles (id, email, display_name, role)
+select u.id,
+       u.email,
+       split_part(u.email, '@', 1),
+       case when not exists (select 1 from public.profiles) and u.id = (select id from auth.users order by created_at limit 1)
+            then 'DEVELOPER' else 'CLIENT' end
+from auth.users u
+where not exists (select 1 from public.profiles p where p.id = u.id)
+order by u.created_at;
+
+-- Make PostgREST pick up the new tables right away.
+notify pgrst, 'reload schema';
