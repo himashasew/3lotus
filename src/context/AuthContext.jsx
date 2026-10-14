@@ -1,14 +1,5 @@
 import { createContext, useContext, useState, useEffect } from 'react';
-import {
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut,
-  getAuth,
-} from 'firebase/auth';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../services/firebase';
-import { initializeApp } from 'firebase/app';
+import { supabase, supabaseConfigured } from '../services/supabase';
 
 const AuthContext = createContext(null);
 
@@ -23,9 +14,13 @@ export const ROLES = {
   DEVELOPER: { level: 7, label: 'Developer' },
 };
 
-// Secondary app for creating users without logging out the current user
-const secondaryApp = initializeApp(auth.app.options, 'SecondaryApp');
-const secondaryAuth = getAuth(secondaryApp);
+const toProfile = (row) => ({
+  email: row.email,
+  displayName: row.display_name,
+  role: row.role,
+  fontSize: row.font_size,
+  createdAt: row.created_at,
+});
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -34,41 +29,57 @@ export function AuthProvider({ children }) {
   const [profileError, setProfileError] = useState(null);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
-      if (firebaseUser) {
-        // Hold the app on "Loading..." until the profile (and so the role) is known
-        setLoading(true);
-        setProfileError(null);
-        setUser(firebaseUser);
-        try {
-          const profileRef = doc(db, 'users', firebaseUser.uid);
-          const profileSnap = await getDoc(profileRef).catch((e) => { e.stage = 'read'; throw e; });
-          if (profileSnap.exists()) {
-            setUserProfile(profileSnap.data());
-          } else {
-            // First-ever user becomes Developer
-            const defaultProfile = {
-              email: firebaseUser.email,
-              displayName: firebaseUser.email.split('@')[0],
-              role: 'DEVELOPER',
-              createdAt: new Date().toISOString(),
-            };
-            await setDoc(profileRef, defaultProfile).catch((e) => { e.stage = 'create'; throw e; });
-            setUserProfile(defaultProfile);
-          }
-        } catch (err) {
-          console.error('Profile load error:', err.stage || '', err);
-          setUserProfile(null);
-          setProfileError(err);
-        }
-      } else {
+    if (!supabaseConfigured) {
+      setProfileError(new Error('Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY.'));
+      setLoading(false);
+      return;
+    }
+
+    let cancelled = false;
+
+    const applySession = async (session) => {
+      if (!session?.user) {
         setUser(null);
         setUserProfile(null);
         setProfileError(null);
+        setLoading(false);
+        return;
+      }
+
+      const authUser = session.user;
+      // Hold the app on "Loading..." until the profile (and so the role) is known
+      setLoading(true);
+      setProfileError(null);
+      setUser({ uid: authUser.id, email: authUser.email });
+
+      const { data, error } = await supabase.from('profiles').select('*').eq('id', authUser.id).maybeSingle();
+      if (cancelled) return;
+
+      if (error) {
+        console.error('Profile load error:', error);
+        setUserProfile(null);
+        setProfileError(error);
+      } else if (!data) {
+        setUserProfile(null);
+        setProfileError(new Error('No profile exists for this account. Ask an administrator to recreate it.'));
+      } else {
+        setUserProfile(toProfile(data));
       }
       setLoading(false);
+    };
+
+    supabase.auth.getSession().then(({ data }) => applySession(data.session));
+    const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+      // Token refreshes keep the same user; no need to reload the profile
+      if (event === 'TOKEN_REFRESHED') return;
+      // Defer: awaiting supabase calls inside this callback can deadlock the auth client
+      setTimeout(() => applySession(session), 0);
     });
-    return () => unsubscribe();
+
+    return () => {
+      cancelled = true;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   // Apply font size preference
@@ -83,28 +94,29 @@ export function AuthProvider({ children }) {
     }
   }, [userProfile?.fontSize]);
 
-  const login = (email, password) => {
-    return signInWithEmailAndPassword(auth, email, password);
+  const login = async (email, password) => {
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) throw error;
   };
 
-  const logout = () => {
-    return signOut(auth);
+  const logout = () => supabase.auth.signOut();
+
+  const changePassword = async (newPassword) => {
+    const { error } = await supabase.auth.updateUser({ password: newPassword });
+    if (error) throw error;
   };
 
-  // Create a new user without logging out the current admin/developer
+  // Creates a user through the server function so the current admin stays signed in
   const createNewUser = async (email, password, role, displayName) => {
-    const userCredential = await createUserWithEmailAndPassword(secondaryAuth, email, password);
-    const newUser = userCredential.user;
-    // Save profile to Firestore
-    await setDoc(doc(db, 'users', newUser.uid), {
-      email,
-      displayName: displayName || email.split('@')[0],
-      role,
-      createdAt: new Date().toISOString(),
+    const { data: { session } } = await supabase.auth.getSession();
+    const res = await fetch('/api/admin-users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session?.access_token}` },
+      body: JSON.stringify({ action: 'create', email, password, role, displayName }),
     });
-    // Sign out of secondary auth so it doesn't persist
-    await signOut(secondaryAuth);
-    return newUser;
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || 'Could not create user');
+    return body;
   };
 
   const hasAccess = (requiredRole) => {
@@ -121,6 +133,7 @@ export function AuthProvider({ children }) {
     profileError,
     login,
     logout,
+    changePassword,
     createNewUser,
     hasAccess,
   };

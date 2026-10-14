@@ -19,7 +19,7 @@ export default function Login() {
       await login(email, password);
     } catch (err) {
       setError(
-        err.code === 'auth/invalid-credential'
+        err.message === 'Invalid login credentials'
           ? 'Invalid email or password'
           : err.message
       );

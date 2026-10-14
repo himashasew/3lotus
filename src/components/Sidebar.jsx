@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc } from 'firebase/firestore';
-import { db } from '../services/firebase';
+import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc } from '../services/data';
+import { db } from '../services/data';
 import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -36,19 +36,20 @@ export default function Sidebar({ isOpen, onClose }) {
   const [notifications, setNotifications] = useState([]);
   const [showNotif, setShowNotif] = useState(false);
 
+  const isAdmin = hasAccess('ADMIN');
+
   useEffect(() => {
-    if (hasAccess('ADMIN')) {
-      const q = query(collection(db, 'notifications'), orderBy('timestamp', 'desc'), limit(15));
-      const unsubscribe = onSnapshot(q, (snap) => {
-        setNotifications(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-      });
-      return () => unsubscribe();
-    }
-  }, [hasAccess]);
+    if (!isAdmin) return;
+    const q = query(collection(db, 'notifications'), orderBy('timestamp', 'desc'), limit(15));
+    return onSnapshot(q, (snap) => {
+      setNotifications(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    });
+  }, [isAdmin]);
 
   const unreadCount = notifications.filter(n => !n.read).length;
 
   const markAsRead = async (id) => {
+    setNotifications(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)));
     await updateDoc(doc(db, 'notifications', id), { read: true });
   };
 

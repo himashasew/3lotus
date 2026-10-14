@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { collection, getDocs, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../services/firebase';
+import { collection, getDocs, doc, updateDoc, deleteDoc } from '../services/data';
+import { db } from '../services/data';
 import { useAuth, ROLES } from '../context/AuthContext';
 
 export default function Developer() {

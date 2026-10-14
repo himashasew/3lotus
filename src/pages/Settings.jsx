@@ -1,13 +1,11 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
-import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../services/firebase';
-import { updatePassword } from 'firebase/auth';
+import { doc, updateDoc, db } from '../services/data';
 
 export default function Settings() {
   const { t, i18n } = useTranslation();
-  const { user, userProfile } = useAuth();
+  const { user, userProfile, changePassword: updateUserPassword } = useAuth();
   const [displayName, setDisplayName] = useState(userProfile?.displayName || '');
   const [fontSize, setFontSize] = useState(userProfile?.fontSize || 'medium');
   const [newPassword, setNewPassword] = useState('');
@@ -29,7 +27,7 @@ export default function Settings() {
 
   const changePassword = async () => {
     try {
-      await updatePassword(user, newPassword);
+      await updateUserPassword(newPassword);
       setNewPassword('');
       setMessage({ text: t('passwordChanged'), type: 'success' });
       setTimeout(() => setMessage({ text: '', type: '' }), 3000);

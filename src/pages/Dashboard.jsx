@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { collection, getDocs, query, orderBy, limit } from 'firebase/firestore';
-import { db } from '../services/firebase';
+import { collection, getDocs, query, orderBy, limit } from '../services/data';
+import { db } from '../services/data';
 
 export default function Dashboard() {
   const { t } = useTranslation();

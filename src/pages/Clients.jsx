@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from 'firebase/firestore';
-import { db } from '../services/firebase';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from '../services/data';
+import { db } from '../services/data';
 
 export default function Clients() {
   const { t } = useTranslation();
