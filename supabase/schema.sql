@@ -1,4 +1,4 @@
--- 3 Lotus CRM — Supabase schema.
+-- 3 Lotus CRM - Supabase schema.
 -- Run once in the Supabase dashboard: SQL Editor > New query > paste > Run.
 -- Role levels: CLIENT 1 < DELIVERY 2 < KITCHEN 3 < SALES 4 < MANAGER 5 < ADMIN 6 < DEVELOPER 7
 
