@@ -85,6 +85,15 @@ export async function addDoc(col, fields) {
   return { id: res.data.id };
 }
 
+// Inserts many documents in one request; returns their ids in the same order.
+export async function addDocs(col, list) {
+  if (col.name === USERS) throw new Error('Create users through the admin API');
+  if (list.length === 0) return [];
+  const res = await supabase.from(col.name).insert(list.map((data) => ({ data }))).select('id');
+  fail(res);
+  return res.data.map((r) => ({ id: r.id }));
+}
+
 export async function updateDoc(ref, patch) {
   if (ref.name === USERS) {
     fail(await supabase.from('profiles').update(toProfile(patch)).eq('id', ref.id));

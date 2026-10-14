@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, query, where, serverTimestamp } from '../services/data';
+import { collection, getDocs, addDoc, addDocs, updateDoc, deleteDoc, doc, query, where, serverTimestamp } from '../services/data';
 import { db } from '../services/data';
 import { useAuth } from '../context/AuthContext';
+import { STARTER_CATEGORIES, STARTER_PRODUCTS } from '../data/starterStock';
 
 // Helper for formatting
 const formatQty = (qty, measureType) => {
@@ -31,8 +32,9 @@ const convertToBase = (value, unit) => {
 
 export default function Stock() {
   const { t } = useTranslation();
-  const { userProfile } = useAuth();
-  
+  const { userProfile, hasAccess } = useAuth();
+  const [seeding, setSeeding] = useState(false);
+
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
   const [search, setSearch] = useState('');
@@ -90,6 +92,39 @@ export default function Stock() {
       await deleteDoc(doc(db, 'categories', id));
       loadCategories();
     }
+  };
+
+  // --- Starter catalogue (Sri Lankan restaurant & catering items) ---
+  const handleLoadStarter = async () => {
+    if (!window.confirm(`Add ${STARTER_CATEGORIES.length} categories and up to ${STARTER_PRODUCTS.length} starter items? Existing names are skipped.`)) return;
+    setSeeding(true);
+    try {
+      const catSnap = await getDocs(collection(db, 'categories'));
+      const catIds = {};
+      catSnap.docs.forEach(d => { catIds[d.data().name] = d.id; });
+
+      const missingCats = STARTER_CATEGORIES.filter(name => !catIds[name]);
+      const created = await addDocs(collection(db, 'categories'), missingCats.map(name => ({ name })));
+      missingCats.forEach((name, i) => { catIds[name] = created[i].id; });
+
+      const prodSnap = await getDocs(collection(db, 'products'));
+      const existing = new Set(prodSnap.docs.map(d => (d.data().name || '').toLowerCase()));
+      const fresh = STARTER_PRODUCTS.filter(p => !existing.has(p.name.toLowerCase()));
+      await addDocs(collection(db, 'products'), fresh.map(p => ({
+        name: p.name,
+        categoryId: catIds[p.category],
+        measureType: p.measureType,
+        reorderLevel: p.reorderLevel,
+        quantity: 0,
+      })));
+
+      await loadCategories();
+      await loadProducts();
+      alert(`Done: ${missingCats.length} categories and ${fresh.length} items added.`);
+    } catch (err) {
+      alert('Could not load starter items: ' + err.message);
+    }
+    setSeeding(false);
   };
 
   // --- Unified Stock Entry ---
@@ -254,7 +289,12 @@ export default function Stock() {
     <div className="fade-in">
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
         <h1>{t('stock')}</h1>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          {hasAccess('MANAGER') && (
+            <button className="btn-add" style={{ background: 'var(--bg-input)', color: 'var(--text-main)' }} onClick={handleLoadStarter} disabled={seeding}>
+              {seeding ? 'Loading…' : '📥 Load starter items'}
+            </button>
+          )}
           <button className="btn-add" style={{ background: 'var(--color-secondary)' }} onClick={() => setModalType('category')}>
             ⚙️ {t('manageCategories')}
           </button>
