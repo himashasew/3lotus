@@ -31,29 +31,40 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [userProfile, setUserProfile] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [profileError, setProfileError] = useState(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
+        // Hold the app on "Loading..." until the profile (and so the role) is known
+        setLoading(true);
+        setProfileError(null);
         setUser(firebaseUser);
-        const profileRef = doc(db, 'users', firebaseUser.uid);
-        const profileSnap = await getDoc(profileRef);
-        if (profileSnap.exists()) {
-          setUserProfile(profileSnap.data());
-        } else {
-          // First-ever user becomes Developer
-          const defaultProfile = {
-            email: firebaseUser.email,
-            displayName: firebaseUser.email.split('@')[0],
-            role: 'DEVELOPER',
-            createdAt: new Date().toISOString(),
-          };
-          await setDoc(profileRef, defaultProfile);
-          setUserProfile(defaultProfile);
+        try {
+          const profileRef = doc(db, 'users', firebaseUser.uid);
+          const profileSnap = await getDoc(profileRef).catch((e) => { e.stage = 'read'; throw e; });
+          if (profileSnap.exists()) {
+            setUserProfile(profileSnap.data());
+          } else {
+            // First-ever user becomes Developer
+            const defaultProfile = {
+              email: firebaseUser.email,
+              displayName: firebaseUser.email.split('@')[0],
+              role: 'DEVELOPER',
+              createdAt: new Date().toISOString(),
+            };
+            await setDoc(profileRef, defaultProfile).catch((e) => { e.stage = 'create'; throw e; });
+            setUserProfile(defaultProfile);
+          }
+        } catch (err) {
+          console.error('Profile load error:', err.stage || '', err);
+          setUserProfile(null);
+          setProfileError(err);
         }
       } else {
         setUser(null);
         setUserProfile(null);
+        setProfileError(null);
       }
       setLoading(false);
     });
@@ -107,6 +118,7 @@ export function AuthProvider({ children }) {
     user,
     userProfile,
     loading,
+    profileError,
     login,
     logout,
     createNewUser,

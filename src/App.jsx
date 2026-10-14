@@ -22,8 +22,22 @@ function ProtectedRoute({ children, minRole }) {
 }
 
 function AppRoutes() {
-  const { user, loading } = useAuth();
+  const { user, loading, profileError, logout } = useAuth();
   if (loading) return <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontSize: '1rem', color: 'var(--text-muted)' }}>Loading...</div>;
+
+  if (user && profileError) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', gap: '1rem', padding: '1.5rem', textAlign: 'center', color: 'var(--text-main)' }}>
+        <h2>Could not load your account</h2>
+        <p style={{ color: 'var(--text-muted)', maxWidth: 480 }}>
+          {profileError.code === 'permission-denied'
+            ? 'The database denied access (Firestore security rules). Ask the administrator to deploy the latest firestore.rules.'
+            : profileError.message}
+        </p>
+        <button className="btn-logout" style={{ width: 'auto', padding: '0.5rem 1.5rem' }} onClick={logout}>Logout</button>
+      </div>
+    );
+  }
 
   return (
     <Routes>
