@@ -9,7 +9,9 @@ export default function Letterhead({ company, id, children }) {
     <div className="doc-scale">
       <div className="doc-sheet" id={id}>
         <header className="doc-header">
-          <img className="doc-logo" src="/logo.png" alt={company.name} crossOrigin="anonymous" />
+          <div className="doc-logo-box">
+            <img className="doc-logo" src="/logo.png" alt={company.name} crossOrigin="anonymous" />
+          </div>
           <div className="doc-contact">
             {lines.filter(Boolean).map((l, i) => <div key={i}>{l}</div>)}
             {company.phone && <div>Tel: {company.phone}</div>}

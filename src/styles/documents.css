@@ -22,10 +22,11 @@
 .doc-sheet .doc-title { color: #1f2330; }
 .doc-sheet .doc-totals .grand, .doc-sheet .doc-table th { color: #fff; }
 .doc-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
-/* logo.png is 500x500 with wide white margins: scale up and trim with negative margins */
-.doc-logo { height: 240px; width: 240px; margin: -95px 0 -75px -29px; flex-shrink: 0; }
+/* logo.png is 500x500 with wide white margins: show only the logo area (x 64-423, y 207-328) in a clipping box */
+.doc-logo-box { position: relative; width: 176px; height: 66px; overflow: hidden; flex-shrink: 0; margin-top: 4px; }
+.doc-logo { position: absolute; left: -27px; top: -94px; width: 236px; height: 236px; max-width: none; }
 .doc-contact { text-align: right; font-size: 10.5px; line-height: 1.55; color: #2b2d3a; padding-top: 6px; }
-.doc-body { flex: 1; padding: 18px 0 28px; }
+.doc-body { flex: 1; padding: 30px 0 28px; }
 .doc-footer { margin-top: auto; }
 
 .doc-title { font-size: 26px; letter-spacing: 0.08em; font-weight: 700; margin: 0 0 4px; }
@@ -61,6 +62,12 @@
 .split-view { display: grid; grid-template-columns: minmax(300px, 380px) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
 .panel { background: var(--bg-card); border: var(--glass-border); border-radius: var(--radius-md); padding: 1.1rem 1.25rem; margin-bottom: 1.1rem; }
 .panel h3 { margin-bottom: 0.8rem; font-size: 1rem; }
+/* .form-group spacing was only defined inside modals */
+.panel .form-group { margin-bottom: 0.9rem; gap: 0.35rem; }
+.panel .grid-2 .form-group, .panel .grid-3 .form-group, .panel .grid-4 .form-group { margin-bottom: 0.3rem; }
+.panel .grid-2, .panel .grid-3, .panel .grid-4 { margin-bottom: 0.6rem; }
+.panel textarea { resize: vertical; min-height: 64px; }
+.panel .table-scroll input, .panel .table-scroll select { min-width: 70px; }
 .chip { display: inline-block; padding: 0.15rem 0.55rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; color: #fff; }
 .table-scroll { overflow-x: auto; }
 .num-input { max-width: 110px; }
