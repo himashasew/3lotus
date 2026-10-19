@@ -34,12 +34,30 @@ export function printElementById(id) {
   setTimeout(() => window.print(), 50);
 }
 
+/** Run fn with every fit-to-screen zoom around/inside el reset to 100%, so captures are true A4 size. */
+async function atFullSize(el, fn) {
+  const fits = new Set(el.querySelectorAll('[data-doc-fit]'));
+  const own = el.closest('[data-doc-fit]');
+  if (own) fits.add(own);
+  const saved = [...fits].map((f) => [f, f.style.zoom]);
+  fits.forEach((f) => { f.style.zoom = '1'; });
+  await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+  try {
+    return await fn();
+  } finally {
+    saved.forEach(([f, z]) => { f.style.zoom = z; });
+  }
+}
+
 /** Download an element as a multi-page A4 PDF. Libraries load on demand. */
 export async function downloadElementAsPdf(id, filename) {
   const el = document.getElementById(id);
   if (!el) return;
   const [{ default: html2canvas }, { jsPDF }] = await Promise.all([import('html2canvas'), import('jspdf')]);
+  await atFullSize(el, () => renderPdf(el, filename, html2canvas, jsPDF));
+}
 
+async function renderPdf(el, filename, html2canvas, jsPDF) {
   const pdf = new jsPDF({ unit: 'mm', format: 'a4' });
   const pageW = 210;
   const pageH = 297;

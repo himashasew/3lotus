@@ -95,6 +95,7 @@
   body.printing-document { background: #fff !important; }
   #print-root { display: block !important; }
   #print-root .doc-scale { overflow: visible; padding: 0; }
+  #print-root .doc-fit { zoom: 1 !important; }
   #print-root .doc-sheet { box-shadow: none; margin: 0; width: 210mm; min-height: 297mm; page-break-after: always; }
   .doc-table tr, .doc-totals { page-break-inside: avoid; }
 }
