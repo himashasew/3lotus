@@ -29,7 +29,7 @@
   "noOrders": "No orders yet. Create your first order!",
   "addProduct": "Add Product",
   "editProduct": "Edit Product",
-  "productName": "Product Name",
+  "productName": "Product / Item Name",
   "category": "Category",
   "quantity": "Quantity",
   "unit": "Unit",
@@ -112,10 +112,13 @@
   "noNotifications": "No notifications",
   "recordStock": "Record Stock Transaction",
   "addStock": "➕ Add / Update Stock",
-  "productName": "Product / Item Name",
   "displaySettings": "Display Settings",
   "fontSize": "Font Size",
   "fontSmall": "Small (A-)",
   "fontMedium": "Medium (A)",
-  "fontLarge": "Large (A+)"
+  "fontLarge": "Large (A+)",
+  "invoices": "Invoices",
+  "letterhead": "Letterhead",
+  "attendance": "Attendance",
+  "payroll": "Payroll"
 }

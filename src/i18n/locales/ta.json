@@ -107,12 +107,8 @@
   "in": "IN",
   "out": "OUT",
   "noHistory": "வரலாறு இல்லை.",
-  "noNotifications": "அறிவிப்புகள் இல்லை",
-  "recordStock": "கையிருப்பு பதிவு செய்",
-  "addStock": "➕ கையிருப்பு சேர் (IN/OUT)",
-  "displaySettings": "காட்சி அமைப்புகள்",
-  "fontSize": "எழுத்துரு அளவு",
-  "fontSmall": "சிறியது (A-)",
-  "fontMedium": "நடுத்தர (A)",
-  "fontLarge": "பெரியது (A+)"
+  "invoices": "விலைப்பட்டியல்",
+  "letterhead": "கடித தலைப்பு",
+  "attendance": "வருகை",
+  "payroll": "சம்பளப் பட்டியல்"
 }

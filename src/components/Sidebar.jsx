@@ -14,7 +14,11 @@ export default function Sidebar({ isOpen, onClose }) {
     { to: '/orders', icon: '📋', label: t('orders'), minRole: 'DELIVERY' },
     { to: '/stock', icon: '📦', label: t('stock'), minRole: 'KITCHEN' },
     { to: '/clients', icon: '🏢', label: t('clients'), minRole: 'SALES' },
+    { to: '/invoices', icon: '🧾', label: t('invoices'), minRole: 'SALES' },
+    { to: '/letterhead', icon: '✉️', label: t('letterhead'), minRole: 'SALES' },
     { to: '/employees', icon: '👥', label: t('employees'), minRole: 'MANAGER' },
+    { to: '/attendance', icon: '🗓️', label: t('attendance'), minRole: 'MANAGER' },
+    { to: '/payroll', icon: '💵', label: t('payroll'), minRole: 'MANAGER' },
     { to: '/finance', icon: '💰', label: t('finance'), minRole: 'MANAGER' },
     { to: '/settings', icon: '⚙️', label: t('settings'), minRole: 'ADMIN' },
   ];

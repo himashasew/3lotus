@@ -29,7 +29,7 @@
   "noOrders": "තවම ඇණවුම් නැත. ඔබේ පළමු ඇණවුම සාදන්න!",
   "addProduct": "නිෂ්පාදනයක් එකතු කරන්න",
   "editProduct": "නිෂ්පාදනය සංස්කරණය කරන්න",
-  "productName": "නිෂ්පාදන නම",
+  "productName": "භාණ්ඩයේ නම",
   "category": "වර්ගය",
   "quantity": "ප්‍රමාණය",
   "unit": "ඒකකය",
@@ -112,10 +112,13 @@
   "noNotifications": "දැනුම්දීම් කිසිවක් නැත",
   "recordStock": "නව Stock වාර්තා කිරීමක් (IN / OUT)",
   "addStock": "➕ නව Stock එකතු කිරීමක් (IN/OUT)",
-  "productName": "භාණ්ඩයේ නම",
   "displaySettings": "තිර දර්ශන සැකසුම් (Display Settings)",
   "fontSize": "අකුරු වල ප්‍රමාණය (Font Size)",
   "fontSmall": "කුඩා (A-)",
   "fontMedium": "සාමාන්‍ය (A)",
-  "fontLarge": "විශාල (A+)"
+  "fontLarge": "විශාල (A+)",
+  "invoices": "ඉන්වොයිස්",
+  "letterhead": "ලිපි ශීර්ෂය",
+  "attendance": "පැමිණීම",
+  "payroll": "වැටුප්"
 }

@@ -12,6 +12,10 @@ import Employees from './pages/Employees';
 import Settings from './pages/Settings';
 import Developer from './pages/Developer';
 import UserManagement from './pages/UserManagement';
+import Attendance from './pages/Attendance';
+import Payroll from './pages/Payroll';
+import Invoices from './pages/Invoices';
+import Letters from './pages/Letters';
 
 function ProtectedRoute({ children, minRole }) {
   const { user, loading, hasAccess } = useAuth();
@@ -46,6 +50,10 @@ function AppRoutes() {
         <Route path="stock" element={<ProtectedRoute minRole="KITCHEN"><Stock /></ProtectedRoute>} />
         <Route path="clients" element={<ProtectedRoute minRole="SALES"><Clients /></ProtectedRoute>} />
         <Route path="employees" element={<ProtectedRoute minRole="MANAGER"><Employees /></ProtectedRoute>} />
+        <Route path="attendance" element={<ProtectedRoute minRole="MANAGER"><Attendance /></ProtectedRoute>} />
+        <Route path="payroll" element={<ProtectedRoute minRole="MANAGER"><Payroll /></ProtectedRoute>} />
+        <Route path="invoices" element={<ProtectedRoute minRole="SALES"><Invoices /></ProtectedRoute>} />
+        <Route path="letterhead" element={<ProtectedRoute minRole="SALES"><Letters /></ProtectedRoute>} />
         <Route path="finance" element={<ProtectedRoute minRole="MANAGER"><Finance /></ProtectedRoute>} />
         <Route path="settings" element={<ProtectedRoute minRole="ADMIN"><Settings /></ProtectedRoute>} />
         <Route path="user-management" element={<ProtectedRoute minRole="ADMIN"><UserManagement /></ProtectedRoute>} />
