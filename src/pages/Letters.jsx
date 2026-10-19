@@ -119,7 +119,31 @@ export default function Letters() {
               {!form.blank && <button className="btn-secondary" onClick={saveLetter} disabled={busy}>💾 {letterId ? 'Update' : 'Save'} letter</button>}
             </div>
           </div>
+        </div>
 
+        <div>
+          <Letterhead company={company} id="letter-sheet">
+            {!form.blank && (<>
+              <div style={{ textAlign: 'right' }}>{formatDate(form.date)}</div>
+              <div style={{ marginTop: 14 }}>
+                {form.toName && <div className="doc-strong">{form.toName}</div>}
+                {form.toAddress && <div style={{ whiteSpace: 'pre-line' }}>{form.toAddress}</div>}
+              </div>
+              {form.subject && <div className="doc-strong" style={{ marginTop: 18, textDecoration: 'underline' }}>{form.subject}</div>}
+              <div style={{ marginTop: 18 }}>{form.salutation}</div>
+              <div className="doc-letter-body">{form.body}</div>
+              <div style={{ marginTop: 24 }}>{form.closing}</div>
+              <div style={{ marginTop: 56 }}>
+                {form.signatory && <div className="doc-strong">{form.signatory}</div>}
+                {form.designation && <div>{form.designation}</div>}
+                <div>{company.name}</div>
+              </div>
+            </>)}
+          </Letterhead>
+        </div>
+      </div>
+
+      <div className="grid-2" style={{ alignItems: 'start', marginTop: '1.1rem' }}>
           <div className="panel">
             <h3>Company &amp; letterhead details</h3>
             {co && (
@@ -158,28 +182,6 @@ export default function Letters() {
               </div>
             ))}
           </div>
-        </div>
-
-        <div>
-          <Letterhead company={company} id="letter-sheet">
-            {!form.blank && (<>
-              <div style={{ textAlign: 'right' }}>{formatDate(form.date)}</div>
-              <div style={{ marginTop: 14 }}>
-                {form.toName && <div className="doc-strong">{form.toName}</div>}
-                {form.toAddress && <div style={{ whiteSpace: 'pre-line' }}>{form.toAddress}</div>}
-              </div>
-              {form.subject && <div className="doc-strong" style={{ marginTop: 18, textDecoration: 'underline' }}>{form.subject}</div>}
-              <div style={{ marginTop: 18 }}>{form.salutation}</div>
-              <div className="doc-letter-body">{form.body}</div>
-              <div style={{ marginTop: 24 }}>{form.closing}</div>
-              <div style={{ marginTop: 56 }}>
-                {form.signatory && <div className="doc-strong">{form.signatory}</div>}
-                {form.designation && <div>{form.designation}</div>}
-                <div>{company.name}</div>
-              </div>
-            </>)}
-          </Letterhead>
-        </div>
       </div>
     </div>
   );
