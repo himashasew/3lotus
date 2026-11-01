@@ -99,3 +99,15 @@
   #print-root .doc-sheet { box-shadow: none; margin: 0; width: 210mm; min-height: 297mm; page-break-after: always; }
   .doc-table tr, .doc-totals { page-break-inside: avoid; }
 }
+
+/* daily meal invoice table: boxed like the paper bill */
+.doc-meal-table { border: 1px solid #2d2f3d; }
+.doc-meal-table th, .doc-meal-table td { border: 1px solid #c9ccd8; }
+.doc-meal-table th.center { text-align: center; }
+.doc-meal-table th.sub { font-size: 10px; }
+.doc-meal-table td { padding: 5px 8px; }
+.doc-meal-table .doc-meal-total td { background: #f1f2f7; font-weight: 700; border-top: 2px solid #2d2f3d; }
+
+/* number boxes inside tables: tighter padding so 4-5 digit values are never clipped */
+.data-table input.num-input { padding: 0.5rem 0.6rem; min-width: 88px; max-width: 120px; }
+.data-table input[type="date"] { padding: 0.5rem 0.6rem; }

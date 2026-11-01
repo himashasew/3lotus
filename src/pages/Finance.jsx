@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, db } from '../services/data';
 import { money, currentMonth, today } from '../lib/payroll';
+import { periodLabel } from '../lib/mealInvoice';
 
 const INCOME_CATEGORIES = ['Restaurant sales', 'Catering orders', 'Invoice payment', 'Other income'];
 const EXPENSE_CATEGORIES = [
@@ -70,6 +71,21 @@ export default function Finance() {
 
   const receivable = invoices.filter(i => i.status !== 'paid' && i.status !== 'cancelled' && i.status !== 'draft')
     .reduce((s, i) => s + Math.max(0, (Number(i.total) || 0) - (Number(i.paidAmount) || 0)), 0);
+
+  // unpaid invoices grouped by client (sent / part paid / overdue), oldest due first
+  const receivables = useMemo(() => {
+    const map = {};
+    invoices.filter(i => i.status !== 'paid' && i.status !== 'cancelled' && i.status !== 'draft').forEach(i => {
+      const due = Math.max(0, (Number(i.total) || 0) - (Number(i.paidAmount) || 0));
+      if (due <= 0) return;
+      const key = i.clientName || 'Unknown';
+      map[key] = map[key] || { name: key, amount: 0, bills: [] };
+      map[key].amount += due;
+      map[key].bills.push({ id: i.id, number: i.number, due, dueDate: i.dueDate, period: i.type === 'meal_period' ? periodLabel(i.periodStart, i.periodEnd) : '' });
+    });
+    Object.values(map).forEach(c => c.bills.sort((a, b) => (a.dueDate || '').localeCompare(b.dueDate || '')));
+    return Object.values(map).sort((a, b) => b.amount - a.amount);
+  }, [invoices]);
 
   const breakdown = (type) => {
     const map = {};
@@ -192,6 +208,34 @@ export default function Finance() {
             </div>
           ))}
         </div>
+      </div>
+
+      <div className="panel">
+        <h3>Money to collect — unpaid invoices by client</h3>
+        {receivables.length === 0 ? <p className="muted">Nothing outstanding. Invoices marked “sent” that are not fully paid appear here.</p> : (
+          <div className="table-scroll">
+            <table className="data-table">
+              <thead><tr><th>Client</th><th>Unpaid bills</th><th>Amount due (Rs.)</th></tr></thead>
+              <tbody>
+                {receivables.map(c => (
+                  <tr key={c.name}>
+                    <td className="doc-strong">{c.name}</td>
+                    <td style={{ whiteSpace: 'normal' }}>
+                      {c.bills.map(b => (
+                        <div key={b.id} style={{ fontSize: '0.8rem' }}>
+                          {b.number}{b.period ? ` · ${b.period}` : ''} — Rs. {money(b.due)}
+                          {b.dueDate && b.dueDate < today() ? <span className="neg"> · overdue</span> : null}
+                        </div>
+                      ))}
+                    </td>
+                    <td className="doc-strong neg">{money(c.amount)}</td>
+                  </tr>
+                ))}
+                <tr style={{ fontWeight: 700 }}><td colSpan={2}>Total to collect</td><td>{money(receivable)}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
 
       <div className="panel">
