@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, db } from '../services/data';
 import { money, today } from '../lib/payroll';
 import { printElementById, downloadElementAsPdf, formatDate } from '../lib/documents';
@@ -21,6 +22,7 @@ const effectiveStatus = (inv) => {
 const STATUS_STYLE = { draft: 'cooking', sent: 'cooking', partial: 'cooking', overdue: 'cancelled', paid: 'completed', cancelled: 'cancelled' };
 
 export default function Invoices() {
+  const { t } = useTranslation();
   const { company } = useCompany();
   const [invoices, setInvoices] = useState([]);
   const [clients, setClients] = useState([]);
@@ -109,7 +111,7 @@ export default function Invoices() {
       });
       await load();
       setEditing(prev => ({ ...prev, clientId: ref.id }));
-      setMessage({ text: `${editing.clientName} saved to Clients.`, type: 'success' });
+      setMessage({ text: t('{{name}} saved to Clients.', { name: editing.clientName }), type: 'success' });
     } catch (err) {
       setMessage({ text: err.message, type: 'error' });
     }
@@ -153,10 +155,10 @@ export default function Invoices() {
   const meal = editing && isMealInvoice(editing);
 
   const save = async (status) => {
-    if (!editing.clientName.trim()) { setMessage({ text: 'Enter or choose a client name.', type: 'error' }); return null; }
+    if (!editing.clientName.trim()) { setMessage({ text: t('Enter or choose a client name.'), type: 'error' }); return null; }
     if (meal) {
-      if (!editing.mealRows.some(r => Number(r.bQty) > 0 || Number(r.oQty) > 0)) { setMessage({ text: 'Enter at least one day with a quantity.', type: 'error' }); return null; }
-    } else if (!editing.items.some(i => i.description.trim())) { setMessage({ text: 'Add at least one item.', type: 'error' }); return null; }
+      if (!editing.mealRows.some(r => Number(r.bQty) > 0 || Number(r.oQty) > 0)) { setMessage({ text: t('Enter at least one day with a quantity.'), type: 'error' }); return null; }
+    } else if (!editing.items.some(i => i.description.trim())) { setMessage({ text: t('Add at least one item.'), type: 'error' }); return null; }
     setBusy(true);
     try {
       const t = invoiceTotals(editing);
@@ -183,7 +185,7 @@ export default function Invoices() {
       let savedId = id;
       if (id) await updateDoc(doc(db, 'invoices', id), data);
       else savedId = (await addDoc(collection(db, 'invoices'), { ...data, createdAt: new Date().toISOString() })).id;
-      setMessage({ text: `Invoice ${data.number} saved.`, type: 'success' });
+      setMessage({ text: t('Invoice {{number}} saved.', { number: data.number }), type: 'success' });
       await load();
       setBusy(false);
       return { ...data, id: savedId };
@@ -221,7 +223,7 @@ export default function Invoices() {
         paidAmount, status: paidAmount >= total ? 'paid' : 'partial', paymentDate: payForm.date,
       });
       setPayFor(null);
-      setMessage({ text: 'Payment recorded and added to Finance as income.', type: 'success' });
+      setMessage({ text: t('Payment recorded and added to Finance as income.'), type: 'success' });
       await load();
     } catch (err) {
       setMessage({ text: err.message, type: 'error' });
@@ -234,7 +236,7 @@ export default function Invoices() {
     if (window.confirm(`Cancel invoice ${inv.number}?`)) { await updateDoc(doc(db, 'invoices', inv.id), { status: 'cancelled' }); load(); }
   };
   const remove = async (inv) => {
-    if ((Number(inv.paidAmount) || 0) > 0) { window.alert('This invoice has payments recorded in Finance. Cancel it instead of deleting.'); return; }
+    if ((Number(inv.paidAmount) || 0) > 0) { window.alert(t('This invoice has payments recorded in Finance. Cancel it instead of deleting.')); return; }
     if (window.confirm(`Delete invoice ${inv.number}?`)) { await deleteDoc(doc(db, 'invoices', inv.id)); load(); }
   };
 
@@ -267,88 +269,87 @@ export default function Invoices() {
     return (
       <div className="fade-in">
         <div className="toolbar">
-          <button className="btn-secondary" onClick={() => setEditing(null)}>← Back</button>
-          <h1 style={{ marginRight: 'auto' }}>{editing.id ? `Edit ${editing.number}` : meal ? 'New daily meal invoice' : 'New invoice'}</h1>
-          <button className="btn-secondary" onClick={() => save('draft')} disabled={busy}>Save draft</button>
-          <button className="btn-add" onClick={saveAndPreview} disabled={busy}>Save &amp; preview / print</button>
+          <button className="btn-secondary" onClick={() => setEditing(null)}>{t('← Back')}</button>
+          <h1 style={{ marginRight: 'auto' }}>{editing.id ? t('Edit {{number}}', { number: editing.number }) : meal ? t('New daily meal invoice') : t('New invoice')}</h1>
+          <button className="btn-secondary" onClick={() => save('draft')} disabled={busy}>{t('Save draft')}</button>
+          <button className="btn-add" onClick={saveAndPreview} disabled={busy}>{t('Save & preview / print')}</button>
         </div>
         {message.text && <div className={message.type === 'success' ? 'msg-success' : 'msg-error'}>{message.text}</div>}
 
         <div className="panel">
-          <h3>Invoice</h3>
+          <h3>{t('Invoice')}</h3>
           <div className="grid-4">
-            <div className="form-group"><label>Invoice no.</label><input value={editing.number} onChange={setField('number')} /></div>
-            <div className="form-group"><label>Invoice date</label><input type="date" value={editing.date} onChange={setField('date')} /></div>
-            <div className="form-group"><label>Due date</label><input type="date" value={editing.dueDate} onChange={setField('dueDate')} /></div>
-            <div className="form-group"><label>Reference / PO / event</label><input value={editing.reference} onChange={setField('reference')} placeholder="optional" /></div>
+            <div className="form-group"><label>{t('Invoice no.')}</label><input value={editing.number} onChange={setField('number')} /></div>
+            <div className="form-group"><label>{t('Invoice date')}</label><input type="date" value={editing.date} onChange={setField('date')} /></div>
+            <div className="form-group"><label>{t('Due date')}</label><input type="date" value={editing.dueDate} onChange={setField('dueDate')} /></div>
+            <div className="form-group"><label>{t('Reference / PO / event')}</label><input value={editing.reference} onChange={setField('reference')} placeholder={t('optional')} /></div>
           </div>
         </div>
 
         <div className="panel">
-          <h3>Client</h3>
+          <h3>{t('Client')}</h3>
           <div className="form-group">
-            <label>Choose an existing client — or leave blank and type details for any other customer</label>
+            <label>{t('Choose an existing client — or leave blank and type details for any other customer')}</label>
             <select value={editing.clientId || ''} onChange={e => pickClient(e.target.value)}>
-              <option value="">— Other / new customer —</option>
+              <option value="">{t('— Other / new customer —')}</option>
               {clients.map(c => <option key={c.id} value={c.id}>{c.companyName}{c.contactPerson ? ` (${c.contactPerson})` : ''}</option>)}
             </select>
           </div>
           <div className="grid-2">
-            <div className="form-group"><label>Name / company</label><input value={editing.clientName} onChange={setField('clientName')} /></div>
-            <div className="form-group"><label>Contact person</label><input value={editing.clientContact} onChange={setField('clientContact')} /></div>
-            <div className="form-group"><label>Phone</label><input value={editing.clientPhone} onChange={setField('clientPhone')} /></div>
-            <div className="form-group"><label>Email</label><input value={editing.clientEmail} onChange={setField('clientEmail')} /></div>
+            <div className="form-group"><label>{t('Name / company')}</label><input value={editing.clientName} onChange={setField('clientName')} /></div>
+            <div className="form-group"><label>{t('Contact person')}</label><input value={editing.clientContact} onChange={setField('clientContact')} /></div>
+            <div className="form-group"><label>{t('Phone')}</label><input value={editing.clientPhone} onChange={setField('clientPhone')} /></div>
+            <div className="form-group"><label>{t('Email')}</label><input value={editing.clientEmail} onChange={setField('clientEmail')} /></div>
           </div>
-          <div className="form-group"><label>Address</label><textarea rows={2} value={editing.clientAddress} onChange={setField('clientAddress')} /></div>
+          <div className="form-group"><label>{t('Address')}</label><textarea rows={2} value={editing.clientAddress} onChange={setField('clientAddress')} /></div>
           {!editing.clientId && editing.clientName.trim() && (
-            <button className="btn-secondary" onClick={saveAsClient}>💾 Save this customer to Clients (so next time you can just pick it)</button>
+            <button className="btn-secondary" onClick={saveAsClient}>{t('💾 Save this customer to Clients (so next time you can just pick it)')}</button>
           )}
         </div>
 
         {meal ? (<>
           <div className="panel">
-            <h3>Billing period (10-day bills)</h3>
+            <h3>{t('Billing period (10-day bills)')}</h3>
             <div className="toolbar">
-              <span className="muted">Quick:</span>
+              <span className="muted">{t('Quick:')}</span>
               {monthPresets(editing.periodStart).map(p => (
                 <button key={p.label} className="btn-secondary" onClick={() => setPeriod(p.start, p.end)}
                   style={editing.periodStart === p.start && editing.periodEnd === p.end ? { outline: '2px solid var(--color-primary)' } : undefined}>{p.label}</button>
               ))}
-              <button className="btn-secondary" onClick={goNextPeriod}>Next period →</button>
+              <button className="btn-secondary" onClick={goNextPeriod}>{t('Next period →')}</button>
             </div>
             <div className="grid-4">
-              <div className="form-group"><label>Period start</label><input type="date" value={editing.periodStart} onChange={e => changeStart(e.target.value)} /></div>
-              <div className="form-group"><label>Period end</label><input type="date" value={editing.periodEnd} onChange={e => changeEnd(e.target.value)} /></div>
-              <div className="form-group"><label>1st meal name</label><input value={editing.bLabel} onChange={setField('bLabel')} /></div>
-              <div className="form-group"><label>2nd meal name</label><input value={editing.oLabel} onChange={setField('oLabel')} /></div>
+              <div className="form-group"><label>{t('Period start')}</label><input type="date" value={editing.periodStart} onChange={e => changeStart(e.target.value)} /></div>
+              <div className="form-group"><label>{t('Period end')}</label><input type="date" value={editing.periodEnd} onChange={e => changeEnd(e.target.value)} /></div>
+              <div className="form-group"><label>{t('1st meal name')}</label><input value={editing.bLabel} onChange={setField('bLabel')} /></div>
+              <div className="form-group"><label>{t('2nd meal name')}</label><input value={editing.oLabel} onChange={setField('oLabel')} /></div>
             </div>
             <p className="muted" style={{ fontSize: '0.78rem' }}>
-              Starting on a later date (say the 5th) gives a shorter first bill that still ends on the 10th; the following bills are 11–20 and 21–month end.
-              You can change either date freely: <b>{periodLabel(editing.periodStart, editing.periodEnd)}</b>.
+              {t('Starting on a later date (say the 5th) gives a shorter first bill that still ends on the 10th; the following bills are 11–20 and 21–month end. You can change either date freely:')} <b>{periodLabel(editing.periodStart, editing.periodEnd)}</b>.
             </p>
           </div>
 
           <div className="panel">
-            <h3>Rates (Rs. per meal)</h3>
+            <h3>{t('Rates (Rs. per meal)')}</h3>
             <div className="grid-4">
-              <div className="form-group"><label>{editing.bLabel} rate</label><input type="number" min="0" step="any" value={editing.bRate} onChange={e => setRate('bRate', e.target.value)} /></div>
-              <div className="form-group"><label>{editing.oLabel} rate</label><input type="number" min="0" step="any" value={editing.oRate} onChange={e => setRate('oRate', e.target.value)} /></div>
-              <div className="form-group" style={{ justifyContent: 'flex-end' }}><button className="btn-secondary" onClick={applyRates}>Apply to all days</button></div>
+              <div className="form-group"><label>{editing.bLabel} {t('rate')}</label><input type="number" min="0" step="any" value={editing.bRate} onChange={e => setRate('bRate', e.target.value)} /></div>
+              <div className="form-group"><label>{editing.oLabel} {t('rate')}</label><input type="number" min="0" step="any" value={editing.oRate} onChange={e => setRate('oRate', e.target.value)} /></div>
+              <div className="form-group" style={{ justifyContent: 'flex-end' }}><button className="btn-secondary" onClick={applyRates}>{t('Apply to all days')}</button></div>
             </div>
           </div>
 
           <div className="panel">
-            <h3>Daily quantities</h3>
+            <h3>{t('Daily quantities')}</h3>
             <div className="table-scroll">
               <table className="data-table" style={{ minWidth: 820 }}>
                 <thead>
                   <tr>
-                    <th rowSpan={2}>Date</th>
+                    <th rowSpan={2}>{t('Date')}</th>
                     <th colSpan={3} style={{ textAlign: 'center' }}>{editing.bLabel}</th>
                     <th colSpan={3} style={{ textAlign: 'center' }}>{editing.oLabel}</th>
                     <th rowSpan={2} />
                   </tr>
-                  <tr><th>Qty</th><th>Rate</th><th>Amount</th><th>Qty</th><th>Rate</th><th>Amount</th></tr>
+                  <tr><th>{t('Qty')}</th><th>{t('Rate')}</th><th>{t('Amount')}</th><th>{t('Qty')}</th><th>{t('Rate')}</th><th>{t('Amount')}</th></tr>
                 </thead>
                 <tbody>
                   {editing.mealRows.map((r, i) => {
@@ -362,32 +363,32 @@ export default function Invoices() {
                         <td><input className="num-input" type="number" min="0" step="any" value={r.oQty} onChange={e => setRow(i, 'oQty', e.target.value)} /></td>
                         <td><input className="num-input" type="number" min="0" step="any" value={r.oRate} onChange={e => setRow(i, 'oRate', e.target.value)} /></td>
                         <td>{a.o ? money(a.o) : '—'}</td>
-                        <td><button className="action-btn delete" title="Remove day" onClick={() => removeRow(i)}>🗑️</button></td>
+                        <td><button className="action-btn delete" title={t('Remove day')} onClick={() => removeRow(i)}>🗑️</button></td>
                       </tr>
                     );
                   })}
                   <tr style={{ fontWeight: 700 }}>
-                    <td>Total</td>
+                    <td>{t('Total')}</td>
                     <td>{mt.bQty}</td><td /><td className="pos">{money(mt.bAmount)}</td>
                     <td>{mt.oQty}</td><td /><td className="pos">{money(mt.oAmount)}</td><td />
                   </tr>
                 </tbody>
               </table>
             </div>
-            <button className="btn-secondary" onClick={addRow} style={{ marginTop: '0.6rem' }}>+ Add day</button>
+            <button className="btn-secondary" onClick={addRow} style={{ marginTop: '0.6rem' }}>{t('+ Add day')}</button>
           </div>
         </>) : (
           <div className="panel">
-            <h3>Items</h3>
+            <h3>{t('Items')}</h3>
             <div className="table-scroll">
               <table className="data-table">
-                <thead><tr><th>Description</th><th style={{ width: 90 }}>Qty</th><th style={{ width: 90 }}>Unit</th><th style={{ width: 140 }}>Unit price (Rs.)</th><th style={{ width: 130 }}>Amount</th><th /></tr></thead>
+                <thead><tr><th>{t('Description')}</th><th style={{ width: 90 }}>{t('Qty')}</th><th style={{ width: 90 }}>{t('Unit')}</th><th style={{ width: 140 }}>{t('Unit price (Rs.)')}</th><th style={{ width: 130 }}>{t('Amount')}</th><th /></tr></thead>
                 <tbody>
                   {editing.items.map((it, i) => (
                     <tr key={i}>
-                      <td><input value={it.description} onChange={e => setItem(i, 'description', e.target.value)} placeholder="e.g. Wedding buffet — 150 guests" /></td>
+                      <td><input value={it.description} onChange={e => setItem(i, 'description', e.target.value)} placeholder={t('e.g. Wedding buffet — 150 guests')} /></td>
                       <td><input type="number" min="0" step="any" value={it.qty} onChange={e => setItem(i, 'qty', e.target.value)} /></td>
-                      <td><input value={it.unit} onChange={e => setItem(i, 'unit', e.target.value)} placeholder="pax / kg" /></td>
+                      <td><input value={it.unit} onChange={e => setItem(i, 'unit', e.target.value)} placeholder={t('pax / kg')} /></td>
                       <td><input type="number" min="0" step="any" value={it.price} onChange={e => setItem(i, 'price', e.target.value)} /></td>
                       <td>{money((Number(it.qty) || 0) * (Number(it.price) || 0))}</td>
                       <td><button className="action-btn delete" onClick={() => removeItem(i)}>🗑️</button></td>
@@ -396,37 +397,37 @@ export default function Invoices() {
                 </tbody>
               </table>
             </div>
-            <button className="btn-secondary" onClick={addItem} style={{ marginTop: '0.6rem' }}>+ Add item</button>
+            <button className="btn-secondary" onClick={addItem} style={{ marginTop: '0.6rem' }}>{t('+ Add item')}</button>
           </div>
         )}
 
         <div className="panel">
-          <h3>Totals</h3>
+          <h3>{t('Totals')}</h3>
           <div className="grid-3">
-            <div className="form-group"><label>Discount type</label>
-              <select value={editing.discountType} onChange={setField('discountType')}><option value="amount">Amount (Rs.)</option><option value="percent">Percent (%)</option></select>
+            <div className="form-group"><label>{t('Discount type')}</label>
+              <select value={editing.discountType} onChange={setField('discountType')}><option value="amount">{t('Amount (Rs.)')}</option><option value="percent">{t('Percent (%)')}</option></select>
             </div>
-            <div className="form-group"><label>Discount</label><input type="number" min="0" step="any" value={editing.discount} onChange={setField('discount')} /></div>
-            <div className="form-group"><label>VAT / tax % (0 for none)</label><input type="number" min="0" step="any" value={editing.taxPercent} onChange={setField('taxPercent')} /></div>
+            <div className="form-group"><label>{t('Discount')}</label><input type="number" min="0" step="any" value={editing.discount} onChange={setField('discount')} /></div>
+            <div className="form-group"><label>{t('VAT / tax % (0 for none)')}</label><input type="number" min="0" step="any" value={editing.taxPercent} onChange={setField('taxPercent')} /></div>
           </div>
           <div className="doc-totals" style={{ color: 'var(--text-main)', width: 'min(380px, 100%)' }}>
             {meal ? (<>
-              <div><span>{editing.bLabel} total</span><span>{money(mt.bAmount)}</span></div>
-              <div><span>{editing.oLabel} total</span><span>{money(mt.oAmount)}</span></div>
+              <div><span>{editing.bLabel} {t('total')}</span><span>{money(mt.bAmount)}</span></div>
+              <div><span>{editing.oLabel} {t('total')}</span><span>{money(mt.oAmount)}</span></div>
             </>) : (
-              <div><span>Subtotal</span><span>{money(totals.subtotal)}</span></div>
+              <div><span>{t('Subtotal')}</span><span>{money(totals.subtotal)}</span></div>
             )}
-            {totals.discountAmount > 0 && <div><span>Discount</span><span>− {money(totals.discountAmount)}</span></div>}
-            {totals.tax > 0 && <div><span>Tax</span><span>{money(totals.tax)}</span></div>}
-            <div className="grand"><span>TOTAL</span><span>Rs. {money(totals.total)}</span></div>
+            {totals.discountAmount > 0 && <div><span>{t('Discount')}</span><span>− {money(totals.discountAmount)}</span></div>}
+            {totals.tax > 0 && <div><span>{t('Tax')}</span><span>{money(totals.tax)}</span></div>}
+            <div className="grand"><span>{t('TOTAL')}</span><span>{t('Rs.')} {money(totals.total)}</span></div>
           </div>
         </div>
 
         <div className="panel">
-          <h3>Notes &amp; terms</h3>
-          <div className="form-group"><label>Notes</label><textarea rows={2} value={editing.notes} onChange={setField('notes')} /></div>
-          <div className="form-group"><label>Terms</label><textarea rows={2} value={editing.terms} onChange={setField('terms')} /></div>
-          <p className="muted" style={{ fontSize: '0.78rem' }}>Bank details and company address come from the Letterhead page (Company details).</p>
+          <h3>{t('Notes & terms')}</h3>
+          <div className="form-group"><label>{t('Notes')}</label><textarea rows={2} value={editing.notes} onChange={setField('notes')} /></div>
+          <div className="form-group"><label>{t('Terms')}</label><textarea rows={2} value={editing.terms} onChange={setField('terms')} /></div>
+          <p className="muted" style={{ fontSize: '0.78rem' }}>{t('Bank details and company address come from the Letterhead page (Company details).')}</p>
         </div>
       </div>
     );
@@ -435,36 +436,36 @@ export default function Invoices() {
   // ------------------------------------------------------------------ list
   return (
     <div className="fade-in">
-      <h1 style={{ marginBottom: '1.5rem' }}>Invoices</h1>
+      <h1 style={{ marginBottom: '1.5rem' }}>{t('Invoices')}</h1>
       {message.text && <div className={message.type === 'success' ? 'msg-success' : 'msg-error'}>{message.text}</div>}
 
       <div className="dashboard-grid">
-        <div className="stat-card clients"><div className="stat-info"><h3>Invoices</h3><div className="stat-value">{invoices.length}</div></div><div className="stat-icon">🧾</div></div>
-        <div className="stat-card orders"><div className="stat-info"><h3>Outstanding</h3><div className="stat-value">Rs. {money(outstanding)}</div></div><div className="stat-icon">⏳</div></div>
-        <div className="stat-card revenue"><div className="stat-info"><h3>Overdue</h3><div className="stat-value" style={{ color: overdueCount ? 'var(--color-danger)' : undefined }}>{overdueCount}</div></div><div className="stat-icon">⚠️</div></div>
+        <div className="stat-card clients"><div className="stat-info"><h3>{t('Invoices')}</h3><div className="stat-value">{invoices.length}</div></div><div className="stat-icon">🧾</div></div>
+        <div className="stat-card orders"><div className="stat-info"><h3>{t('Outstanding')}</h3><div className="stat-value">{t('Rs.')} {money(outstanding)}</div></div><div className="stat-icon">⏳</div></div>
+        <div className="stat-card revenue"><div className="stat-info"><h3>{t('Overdue')}</h3><div className="stat-value" style={{ color: overdueCount ? 'var(--color-danger)' : undefined }}>{overdueCount}</div></div><div className="stat-icon">⚠️</div></div>
       </div>
 
       <div className="data-section">
         <div className="data-section-header">
-          <div className="search-bar"><span className="search-icon">🔍</span><input placeholder="Search number or client…" value={search} onChange={e => setSearch(e.target.value)} /></div>
+          <div className="search-bar"><span className="search-icon">🔍</span><input placeholder={t('Search number or client…')} value={search} onChange={e => setSearch(e.target.value)} /></div>
           <div className="toolbar" style={{ marginBottom: 0 }}>
             <select value={clientFilter} onChange={e => setClientFilter(e.target.value)} style={{ width: 'auto' }}>
-              <option value="all">All clients</option>
+              <option value="all">{t('All clients')}</option>
               {clientNames.map(n => <option key={n} value={n}>{n}</option>)}
             </select>
             <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ width: 'auto' }}>
-              <option value="all">All</option><option value="draft">Draft</option><option value="sent">Sent</option><option value="partial">Part paid</option>
-              <option value="overdue">Overdue</option><option value="paid">Paid</option><option value="cancelled">Cancelled</option>
+              <option value="all">{t('All')}</option><option value="draft">{t('Draft')}</option><option value="sent">{t('Sent')}</option><option value="partial">{t('Part paid')}</option>
+              <option value="overdue">{t('Overdue')}</option><option value="paid">{t('Paid')}</option><option value="cancelled">{t('Cancelled')}</option>
             </select>
-            <button className="btn-secondary" onClick={newMealInvoice}>+ Daily meal invoice</button>
-            <button className="btn-add" onClick={newInvoice}>+ New invoice</button>
+            <button className="btn-secondary" onClick={newMealInvoice}>{t('+ Daily meal invoice')}</button>
+            <button className="btn-add" onClick={newInvoice}>{t('+ New invoice')}</button>
           </div>
         </div>
 
         {filtered.length > 0 ? (
           <div className="table-scroll">
             <table className="data-table">
-              <thead><tr><th>Invoice</th><th>Client</th><th>Date</th><th>Due</th><th>Total (Rs.)</th><th>Paid</th><th>Status</th><th>Actions</th></tr></thead>
+              <thead><tr><th>{t('Invoice')}</th><th>{t('Client')}</th><th>{t('Date')}</th><th>{t('Due')}</th><th>{t('Total (Rs.)')}</th><th>{t('Paid')}</th><th>{t('Status')}</th><th>{t('Actions')}</th></tr></thead>
               <tbody>
                 {filtered.map(inv => {
                   const st = effectiveStatus(inv);
@@ -474,21 +475,21 @@ export default function Invoices() {
                       <td className="doc-strong">{inv.number}</td>
                       <td>
                         {inv.clientName}
-                        {isMealInvoice(inv) && <div className="muted" style={{ fontSize: '0.74rem' }}>Period {periodLabel(inv.periodStart, inv.periodEnd)}</div>}
+                        {isMealInvoice(inv) && <div className="muted" style={{ fontSize: '0.74rem' }}>{t('Period')} {periodLabel(inv.periodStart, inv.periodEnd)}</div>}
                       </td>
                       <td>{formatDate(inv.date)}</td>
                       <td>{formatDate(inv.dueDate)}</td>
                       <td>{money(total)}</td>
                       <td>{money(inv.paidAmount)}</td>
-                      <td><span className={`status-badge ${STATUS_STYLE[st]}`}>{st}</span></td>
+                      <td><span className={`status-badge ${STATUS_STYLE[st]}`}>{t(st)}</span></td>
                       <td>
                         <div className="action-btns">
-                          <button className="action-btn" title="View / print / download" onClick={() => setPreview(inv)}>🖨️</button>
-                          <button className="action-btn" title="Edit" onClick={() => editInvoice(inv)}>✏️</button>
-                          {['draft'].includes(st) && <button className="action-btn" title="Mark as sent" onClick={() => markSent(inv)}>📤</button>}
-                          {!['paid', 'cancelled'].includes(st) && <button className="action-btn" title="Record payment" onClick={() => openPay(inv)}>💳</button>}
-                          {!['paid', 'cancelled'].includes(st) && <button className="action-btn" title="Cancel invoice" onClick={() => cancelInvoice(inv)}>🚫</button>}
-                          <button className="action-btn delete" title="Delete" onClick={() => remove(inv)}>🗑️</button>
+                          <button className="action-btn" title={t('View / print / download')} onClick={() => setPreview(inv)}>🖨️</button>
+                          <button className="action-btn" title={t('Edit')} onClick={() => editInvoice(inv)}>✏️</button>
+                          {['draft'].includes(st) && <button className="action-btn" title={t('Mark as sent')} onClick={() => markSent(inv)}>📤</button>}
+                          {!['paid', 'cancelled'].includes(st) && <button className="action-btn" title={t('Record payment')} onClick={() => openPay(inv)}>💳</button>}
+                          {!['paid', 'cancelled'].includes(st) && <button className="action-btn" title={t('Cancel invoice')} onClick={() => cancelInvoice(inv)}>🚫</button>}
+                          <button className="action-btn delete" title={t('Delete')} onClick={() => remove(inv)}>🗑️</button>
                         </div>
                       </td>
                     </tr>
@@ -498,7 +499,7 @@ export default function Invoices() {
             </table>
           </div>
         ) : (
-          <div className="empty-state"><div className="empty-icon">🧾</div><p>No invoices yet. Click “New invoice” for a normal bill, or “Daily meal invoice” for the 10-day bills with daily breakfast / OT meal quantities.</p></div>
+          <div className="empty-state"><div className="empty-icon">🧾</div><p>{t('No invoices yet. Click “New invoice” for a normal bill, or “Daily meal invoice” for the 10-day bills with daily breakfast / OT meal quantities.')}</p></div>
         )}
       </div>
 
@@ -507,9 +508,9 @@ export default function Invoices() {
           <div className="modal wide" style={{ maxWidth: 900 }} onClick={e => e.stopPropagation()}>
             <div className="toolbar">
               <h2 style={{ marginRight: 'auto' }}>{preview.number}</h2>
-              <button className="btn-secondary" onClick={() => printElementById('invoice-sheet')}>🖨 Print</button>
-              <button className="btn-secondary" onClick={() => downloadElementAsPdf('invoice-sheet', preview.number)}>⬇ Download PDF</button>
-              <button className="btn-cancel" onClick={() => setPreview(null)}>Close</button>
+              <button className="btn-secondary" onClick={() => printElementById('invoice-sheet')}>{t('🖨 Print')}</button>
+              <button className="btn-secondary" onClick={() => downloadElementAsPdf('invoice-sheet', preview.number)}>{t('⬇ Download PDF')}</button>
+              <button className="btn-cancel" onClick={() => setPreview(null)}>{t('Close')}</button>
             </div>
             <InvoiceDocument company={company} invoice={preview} id="invoice-sheet" />
           </div>
@@ -519,19 +520,19 @@ export default function Invoices() {
       {payFor && (
         <div className="modal-overlay" onClick={() => setPayFor(null)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <h2>Record payment — {payFor.number}</h2>
-            <p className="muted">Added to Finance as income (category “Invoice payment”).</p>
+            <h2>{t('Record payment —')} {payFor.number}</h2>
+            <p className="muted">{t('Added to Finance as income (category “Invoice payment”).')}</p>
             <div className="grid-2">
-              <div className="form-group"><label>Amount (Rs.)</label><input type="number" min="0" step="any" value={payForm.amount} onChange={e => setPayForm({ ...payForm, amount: e.target.value })} /></div>
-              <div className="form-group"><label>Date</label><input type="date" value={payForm.date} onChange={e => setPayForm({ ...payForm, date: e.target.value })} /></div>
-              <div className="form-group"><label>Method</label>
-                <select value={payForm.method} onChange={e => setPayForm({ ...payForm, method: e.target.value })}><option>Cash</option><option>Bank transfer</option><option>Card</option><option>Cheque</option></select>
+              <div className="form-group"><label>{t('Amount (Rs.)')}</label><input type="number" min="0" step="any" value={payForm.amount} onChange={e => setPayForm({ ...payForm, amount: e.target.value })} /></div>
+              <div className="form-group"><label>{t('Date')}</label><input type="date" value={payForm.date} onChange={e => setPayForm({ ...payForm, date: e.target.value })} /></div>
+              <div className="form-group"><label>{t('Method')}</label>
+                <select value={payForm.method} onChange={e => setPayForm({ ...payForm, method: e.target.value })}><option>{t('Cash')}</option><option>{t('Bank transfer')}</option><option>{t('Card')}</option><option>{t('Cheque')}</option></select>
               </div>
-              <div className="form-group"><label>Reference</label><input value={payForm.reference} onChange={e => setPayForm({ ...payForm, reference: e.target.value })} placeholder="cheque / transfer no." /></div>
+              <div className="form-group"><label>{t('Reference')}</label><input value={payForm.reference} onChange={e => setPayForm({ ...payForm, reference: e.target.value })} placeholder={t('cheque / transfer no.')} /></div>
             </div>
             <div className="modal-actions">
-              <button className="btn-cancel" onClick={() => setPayFor(null)}>Cancel</button>
-              <button className="btn-save" onClick={recordPayment} disabled={busy}>{busy ? 'Saving…' : 'Record payment'}</button>
+              <button className="btn-cancel" onClick={() => setPayFor(null)}>{t('Cancel')}</button>
+              <button className="btn-save" onClick={recordPayment} disabled={busy}>{busy ? t('Saving…') : t('Record payment')}</button>
             </div>
           </div>
         </div>

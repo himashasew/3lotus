@@ -23,7 +23,7 @@
   --glass-blur: blur(12px);
 
   /* Typography */
-  --font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-family: 'Inter', 'Noto Sans Sinhala', 'Noto Sans Tamil', 'Nirmala UI', system-ui, -apple-system, sans-serif;
 
   /* Radii */
   --radius-sm: 8px;

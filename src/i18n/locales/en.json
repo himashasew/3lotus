@@ -120,5 +120,14 @@
   "invoices": "Invoices",
   "letterhead": "Letterhead",
   "attendance": "Attendance",
-  "payroll": "Payroll"
+  "payroll": "Payroll",
+  "Attendance saved for {{date}}.": "Attendance saved for {{date}}.",
+  "Payroll for {{month}} saved.": "Payroll for {{month}} saved.",
+  "{{count}} salary payment(s) recorded and added to Finance as expenses.": "{{count}} salary payment(s) recorded and added to Finance as expenses.",
+  "{{name}} saved to Clients.": "{{name}} saved to Clients.",
+  "Invoice {{number}} saved.": "Invoice {{number}} saved.",
+  "Edit {{number}}": "Edit {{number}}",
+  "New daily meal invoice": "New daily meal invoice",
+  "New invoice": "New invoice",
+  "Save attendance ({{marked}}/{{total}})": "Save attendance ({{marked}}/{{total}})"
 }

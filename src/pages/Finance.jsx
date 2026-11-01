@@ -165,44 +165,44 @@ export default function Finance() {
       <div className="panel">
         <div className="toolbar" style={{ marginBottom: 0 }}>
           <select value={period} onChange={e => setPeriod(e.target.value)} style={{ width: 'auto' }}>
-            <option value="month">Month</option><option value="range">Date range</option><option value="all">All time</option>
+            <option value="month">{t('Month')}</option><option value="range">{t('Date range')}</option><option value="all">{t('All time')}</option>
           </select>
           {period === 'month' && <input type="month" value={month} onChange={e => e.target.value && setMonth(e.target.value)} style={{ width: 'auto' }} />}
           {period === 'range' && (<>
             <input type="date" value={from} onChange={e => setFrom(e.target.value)} style={{ width: 'auto' }} />
-            <span className="muted">to</span>
+            <span className="muted">{t('to')}</span>
             <input type="date" value={to} onChange={e => setTo(e.target.value)} style={{ width: 'auto' }} />
           </>)}
         </div>
       </div>
 
       <div className="dashboard-grid">
-        <div className="stat-card clients"><div className="stat-info"><h3>{t('totalIncome')}</h3><div className="stat-value" style={{ color: 'var(--color-secondary)' }}>Rs. {money(totalIncome)}</div></div><div className="stat-icon">📈</div></div>
-        <div className="stat-card orders"><div className="stat-info"><h3>{t('totalExpense')}</h3><div className="stat-value" style={{ color: 'var(--color-primary)' }}>Rs. {money(totalExpense)}</div></div><div className="stat-icon">📉</div></div>
-        <div className="stat-card revenue"><div className="stat-info"><h3>{t('profit')}</h3><div className="stat-value" style={{ color: profit >= 0 ? 'var(--color-secondary)' : 'var(--color-danger)' }}>Rs. {money(profit)}</div></div><div className="stat-icon">💎</div></div>
-        <div className="stat-card clients"><div className="stat-info"><h3>Payroll &amp; EPF/ETF</h3><div className="stat-value">Rs. {money(payrollExpense)}</div></div><div className="stat-icon">👥</div></div>
-        <div className="stat-card orders"><div className="stat-info"><h3>Invoices unpaid</h3><div className="stat-value">Rs. {money(receivable)}</div></div><div className="stat-icon">🧾</div></div>
-        <div className="stat-card revenue"><div className="stat-info"><h3>Cash / Bank balance</h3><div className="stat-value" style={{ fontSize: '1.05rem' }}>{money(byMethod('Cash'))} / {money(byMethod('Bank transfer') + byMethod('Card') + byMethod('Cheque'))}</div></div><div className="stat-icon">🏦</div></div>
+        <div className="stat-card clients"><div className="stat-info"><h3>{t('totalIncome')}</h3><div className="stat-value" style={{ color: 'var(--color-secondary)' }}>{t('Rs.')} {money(totalIncome)}</div></div><div className="stat-icon">📈</div></div>
+        <div className="stat-card orders"><div className="stat-info"><h3>{t('totalExpense')}</h3><div className="stat-value" style={{ color: 'var(--color-primary)' }}>{t('Rs.')} {money(totalExpense)}</div></div><div className="stat-icon">📉</div></div>
+        <div className="stat-card revenue"><div className="stat-info"><h3>{t('profit')}</h3><div className="stat-value" style={{ color: profit >= 0 ? 'var(--color-secondary)' : 'var(--color-danger)' }}>{t('Rs.')} {money(profit)}</div></div><div className="stat-icon">💎</div></div>
+        <div className="stat-card clients"><div className="stat-info"><h3>{t('Payroll & EPF/ETF')}</h3><div className="stat-value">{t('Rs.')} {money(payrollExpense)}</div></div><div className="stat-icon">👥</div></div>
+        <div className="stat-card orders"><div className="stat-info"><h3>{t('Invoices unpaid')}</h3><div className="stat-value">{t('Rs.')} {money(receivable)}</div></div><div className="stat-icon">🧾</div></div>
+        <div className="stat-card revenue"><div className="stat-info"><h3>{t('Cash / Bank balance')}</h3><div className="stat-value" style={{ fontSize: '1.05rem' }}>{money(byMethod('Cash'))} / {money(byMethod('Bank transfer') + byMethod('Card') + byMethod('Cheque'))}</div></div><div className="stat-icon">🏦</div></div>
       </div>
 
       <div className="grid-2" style={{ alignItems: 'start' }}>
         <div className="panel">
-          <h3>Expenses by category</h3>
-          {breakdown('expense').length === 0 && <p className="muted">No expenses in this period.</p>}
+          <h3>{t('Expenses by category')}</h3>
+          {breakdown('expense').length === 0 && <p className="muted">{t('No expenses in this period.')}</p>}
           {breakdown('expense').map(b => (
             <div className="bar-row" key={b.name}>
-              <span style={{ width: 150 }}>{b.name}</span>
+              <span style={{ width: 150 }}>{t(b.name)}</span>
               <div className="bar-track"><div className="bar-fill" style={{ width: `${b.pct}%`, background: 'var(--color-primary)' }} /></div>
               <span style={{ width: 100, textAlign: 'right' }}>{money(b.value)}</span>
             </div>
           ))}
         </div>
         <div className="panel">
-          <h3>Income by category</h3>
-          {breakdown('income').length === 0 && <p className="muted">No income in this period.</p>}
+          <h3>{t('Income by category')}</h3>
+          {breakdown('income').length === 0 && <p className="muted">{t('No income in this period.')}</p>}
           {breakdown('income').map(b => (
             <div className="bar-row" key={b.name}>
-              <span style={{ width: 150 }}>{b.name}</span>
+              <span style={{ width: 150 }}>{t(b.name)}</span>
               <div className="bar-track"><div className="bar-fill" style={{ width: `${b.pct}%`, background: 'var(--color-secondary)' }} /></div>
               <span style={{ width: 100, textAlign: 'right' }}>{money(b.value)}</span>
             </div>
@@ -211,11 +211,11 @@ export default function Finance() {
       </div>
 
       <div className="panel">
-        <h3>Money to collect — unpaid invoices by client</h3>
-        {receivables.length === 0 ? <p className="muted">Nothing outstanding. Invoices marked “sent” that are not fully paid appear here.</p> : (
+        <h3>{t('Money to collect — unpaid invoices by client')}</h3>
+        {receivables.length === 0 ? <p className="muted">{t('Nothing outstanding. Invoices marked “sent” that are not fully paid appear here.')}</p> : (
           <div className="table-scroll">
             <table className="data-table">
-              <thead><tr><th>Client</th><th>Unpaid bills</th><th>Amount due (Rs.)</th></tr></thead>
+              <thead><tr><th>{t('Client')}</th><th>{t('Unpaid bills')}</th><th>{t('Amount due (Rs.)')}</th></tr></thead>
               <tbody>
                 {receivables.map(c => (
                   <tr key={c.name}>
@@ -223,15 +223,15 @@ export default function Finance() {
                     <td style={{ whiteSpace: 'normal' }}>
                       {c.bills.map(b => (
                         <div key={b.id} style={{ fontSize: '0.8rem' }}>
-                          {b.number}{b.period ? ` · ${b.period}` : ''} — Rs. {money(b.due)}
-                          {b.dueDate && b.dueDate < today() ? <span className="neg"> · overdue</span> : null}
+                          {b.number}{b.period ? ` · ${b.period}` : ''} {t('— Rs.')} {money(b.due)}
+                          {b.dueDate && b.dueDate < today() ? <span className="neg"> {t('· overdue')}</span> : null}
                         </div>
                       ))}
                     </td>
                     <td className="doc-strong neg">{money(c.amount)}</td>
                   </tr>
                 ))}
-                <tr style={{ fontWeight: 700 }}><td colSpan={2}>Total to collect</td><td>{money(receivable)}</td></tr>
+                <tr style={{ fontWeight: 700 }}><td colSpan={2}>{t('Total to collect')}</td><td>{money(receivable)}</td></tr>
               </tbody>
             </table>
           </div>
@@ -239,7 +239,7 @@ export default function Finance() {
       </div>
 
       <div className="panel">
-        <h3>Last 6 months</h3>
+        <h3>{t('Last 6 months')}</h3>
         {trend.map(x => (
           <div key={x.m} style={{ margin: '0.5rem 0' }}>
             <div className="bar-row" style={{ margin: 0 }}>
@@ -262,13 +262,13 @@ export default function Finance() {
           <div className="toolbar" style={{ marginBottom: 0 }}>
             <div className="search-bar"><span className="search-icon">🔍</span><input placeholder={t('search')} value={search} onChange={e => setSearch(e.target.value)} /></div>
             <select value={typeFilter} onChange={e => setTypeFilter(e.target.value)} style={{ width: 'auto' }}>
-              <option value="all">All types</option><option value="income">{t('income')}</option><option value="expense">{t('expense')}</option>
+              <option value="all">{t('All types')}</option><option value="income">{t('income')}</option><option value="expense">{t('expense')}</option>
             </select>
             <select value={catFilter} onChange={e => setCatFilter(e.target.value)} style={{ width: 'auto' }}>
-              <option value="all">All categories</option>
-              {allCats.map(c => <option key={c}>{c}</option>)}
+              <option value="all">{t('All categories')}</option>
+              {allCats.map(c => <option key={c} value={c}>{t(c)}</option>)}
             </select>
-            <button className="btn-secondary" onClick={exportCsv} disabled={filtered.length === 0}>⬇ CSV</button>
+            <button className="btn-secondary" onClick={exportCsv} disabled={filtered.length === 0}>{t('⬇ CSV')}</button>
             <button className="btn-add" onClick={openAdd}>+ {t('addTransaction')}</button>
           </div>
         </div>
@@ -277,14 +277,14 @@ export default function Finance() {
           <div className="table-scroll">
             <table className="data-table">
               <thead>
-                <tr><th>{t('date')}</th><th>{t('type')}</th><th>Category</th><th>{t('description')}</th><th>Method</th><th>{t('amount')} (Rs.)</th><th>{t('actions')}</th></tr>
+                <tr><th>{t('date')}</th><th>{t('type')}</th><th>{t('Category')}</th><th>{t('description')}</th><th>{t('Method')}</th><th>{t('amount')} {t('(Rs.)')}</th><th>{t('actions')}</th></tr>
               </thead>
               <tbody>
                 {filtered.map(r => (
                   <tr key={r.id}>
                     <td>{r.date}</td>
                     <td><span className={`status-badge ${r.type === 'income' ? 'completed' : 'cooking'}`}>{r.type === 'income' ? t('income') : t('expense')}</span></td>
-                    <td>{r.category || '—'}{r.source ? <span className="muted" style={{ fontSize: '0.7rem' }}> · auto</span> : null}</td>
+                    <td>{r.category ? t(r.category) : '—'}{r.source ? <span className="muted" style={{ fontSize: '0.7rem' }}> {t('· auto')}</span> : null}</td>
                     <td>
                       <div>{r.description}</div>
                       {(r.party || r.reference) && <div className="muted" style={{ fontSize: '0.74rem' }}>{[r.party, r.reference].filter(Boolean).join(' · ')}</div>}
@@ -310,7 +310,7 @@ export default function Finance() {
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div className="modal" onClick={e => e.stopPropagation()}>
-            <h2>{editId ? 'Edit transaction' : t('addTransaction')}</h2>
+            <h2>{editId ? t('Edit transaction') : t('addTransaction')}</h2>
             {error && <div className="msg-error">{error}</div>}
             <form onSubmit={handleSave}>
               <div className="grid-2">
@@ -319,22 +319,22 @@ export default function Finance() {
                     <option value="income">{t('income')}</option><option value="expense">{t('expense')}</option>
                   </select>
                 </div>
-                <div className="form-group"><label>Category</label>
+                <div className="form-group"><label>{t('Category')}</label>
                   <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
-                    {[...new Set([...categories, form.category].filter(Boolean))].map(c => <option key={c}>{c}</option>)}
+                    {[...new Set([...categories, form.category].filter(Boolean))].map(c => <option key={c} value={c}>{t(c)}</option>)}
                   </select>
                 </div>
               </div>
               <div className="form-group"><label>{t('description')}</label><input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} required /></div>
               <div className="grid-2">
-                <div className="form-group"><label>{t('amount')} (Rs.)</label><input type="number" min="0" step="any" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required /></div>
+                <div className="form-group"><label>{t('amount')} {t('(Rs.)')}</label><input type="number" min="0" step="any" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required /></div>
                 <div className="form-group"><label>{t('date')}</label><input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required /></div>
-                <div className="form-group"><label>Payment method</label>
-                  <select value={form.method} onChange={e => setForm({ ...form, method: e.target.value })}>{METHODS.map(m => <option key={m}>{m}</option>)}</select>
+                <div className="form-group"><label>{t('Payment method')}</label>
+                  <select value={form.method} onChange={e => setForm({ ...form, method: e.target.value })}>{METHODS.map(m => <option key={m} value={m}>{t(m)}</option>)}</select>
                 </div>
-                <div className="form-group"><label>Reference / bill no.</label><input value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} /></div>
+                <div className="form-group"><label>{t('Reference / bill no.')}</label><input value={form.reference} onChange={e => setForm({ ...form, reference: e.target.value })} /></div>
               </div>
-              <div className="form-group"><label>{form.type === 'income' ? 'Received from' : 'Paid to'}</label><input value={form.party} onChange={e => setForm({ ...form, party: e.target.value })} /></div>
+              <div className="form-group"><label>{form.type === 'income' ? t('Received from') : t('Paid to')}</label><input value={form.party} onChange={e => setForm({ ...form, party: e.target.value })} /></div>
               <div className="modal-actions">
                 <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>{t('cancel')}</button>
                 <button type="submit" className="btn-save">{t('save')}</button>

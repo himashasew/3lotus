@@ -196,7 +196,7 @@ export default function Stock() {
     // 2. Process Transaction
     const baseQty = convertToBase(uForm.displayQty, uForm.displayUnit);
     if (baseQty <= 0) {
-      alert("Please enter a valid quantity.");
+      alert(t('Please enter a valid quantity.'));
       return;
     }
 
@@ -292,7 +292,7 @@ export default function Stock() {
         <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
           {hasAccess('MANAGER') && (
             <button className="btn-add" style={{ background: 'var(--bg-input)', color: 'var(--text-main)' }} onClick={handleLoadStarter} disabled={seeding}>
-              {seeding ? 'Loading…' : '📥 Load starter items'}
+              {seeding ? t('Loading…') : t('📥 Load starter items')}
             </button>
           )}
           <button className="btn-add" style={{ background: 'var(--color-secondary)' }} onClick={() => setModalType('category')}>
@@ -362,19 +362,19 @@ export default function Stock() {
             
             <form onSubmit={handleSaveUnified}>
               <div className="form-group">
-                <label>Item Name</label>
+                <label>{t('Item Name')}</label>
                 <input 
                   list="product-suggestions"
                   value={uForm.productName}
                   onChange={e => handleProductNameChange(e.target.value)}
-                  placeholder="e.g. Basmati Rice"
+                  placeholder={t('e.g. Basmati Rice')}
                   required 
                   autoFocus
                 />
                 <datalist id="product-suggestions">
                   {products.map(p => <option key={p.id} value={p.name} />)}
                 </datalist>
-                {isExistingProduct && <span style={{ fontSize: '0.8rem', color: 'var(--color-secondary)' }}>✓ Existing item selected</span>}
+                {isExistingProduct && <span style={{ fontSize: '0.8rem', color: 'var(--color-secondary)' }}>{t('✓ Existing item selected')}</span>}
               </div>
 
               {!isExistingProduct && (
@@ -382,16 +382,16 @@ export default function Stock() {
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                     <label>{t('category')}</label>
                     <select value={uForm.categoryId} onChange={e => setUForm({...uForm, categoryId: e.target.value})} required>
-                      <option value="">-- Select --</option>
+                      <option value="">{t('-- Select --')}</option>
                       {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                     </select>
                   </div>
                   <div className="form-group" style={{ flex: 1, marginBottom: 0 }}>
                     <label>{t('measureType')}</label>
                     <select value={uForm.measureType} onChange={e => handleMeasureTypeChange(e.target.value)}>
-                      <option value="mass">{t('mass')} (kg/g)</option>
-                      <option value="volume">{t('volume')} (L/ml)</option>
-                      <option value="count">{t('count')} (pcs)</option>
+                      <option value="mass">{t('mass')} {t('(kg/g)')}</option>
+                      <option value="volume">{t('volume')} {t('(L/ml)')}</option>
+                      <option value="count">{t('count')} {t('(pcs)')}</option>
                     </select>
                   </div>
                 </div>
@@ -399,34 +399,34 @@ export default function Stock() {
 
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label>Type</label>
+                  <label>{t('Type')}</label>
                   <select value={uForm.txType} onChange={e => setUForm({...uForm, txType: e.target.value})}>
-                    <option value="IN">{t('in')} (Add Stock)</option>
-                    <option value="OUT">{t('out')} (Use Stock)</option>
+                    <option value="IN">{t('in')} {t('(Add Stock)')}</option>
+                    <option value="OUT">{t('out')} {t('(Use Stock)')}</option>
                   </select>
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label>Date</label>
+                  <label>{t('Date')}</label>
                   <input type="date" value={uForm.date} onChange={e => setUForm({...uForm, date: e.target.value})} required />
                 </div>
               </div>
 
               <div style={{ display: 'flex', gap: '1rem' }}>
                 <div className="form-group" style={{ flex: 2 }}>
-                  <label>Amount</label>
+                  <label>{t('Amount')}</label>
                   <input type="number" step="any" min="0.01" value={uForm.displayQty} onChange={e => setUForm({...uForm, displayQty: e.target.value})} required />
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label>Unit</label>
+                  <label>{t('Unit')}</label>
                   <select value={uForm.displayUnit} onChange={e => setUForm({...uForm, displayUnit: e.target.value})} required>
-                    {getDisplayUnitOptions(uForm.measureType).map(u => <option key={u.val} value={u.val}>{u.label}</option>)}
+                    {getDisplayUnitOptions(uForm.measureType).map(u => <option key={u.val} value={u.val}>{t(u.label)}</option>)}
                   </select>
                 </div>
               </div>
 
               <div className="form-group">
                 <label>{t('note')}</label>
-                <input value={uForm.note} onChange={e => setUForm({...uForm, note: e.target.value})} placeholder="e.g., For 400 lunch parcels" />
+                <input value={uForm.note} onChange={e => setUForm({...uForm, note: e.target.value})} placeholder={t('e.g., For 400 lunch parcels')} />
               </div>
               <div className="modal-actions">
                 <button type="button" className="btn-cancel" onClick={() => setModalType(null)}>{t('cancel')}</button>
@@ -452,7 +452,7 @@ export default function Stock() {
               <div className="form-group">
                 <label>{t('category')}</label>
                 <select value={editForm.categoryId} onChange={e => setEditForm({...editForm, categoryId: e.target.value})} required>
-                  <option value="">-- Select --</option>
+                  <option value="">{t('-- Select --')}</option>
                   {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
@@ -460,14 +460,14 @@ export default function Stock() {
                 <div className="form-group" style={{ flex: 1 }}>
                   <label>{t('measureType')}</label>
                   <select value={editForm.measureType} onChange={e => setEditForm({...editForm, measureType: e.target.value})}>
-                    <option value="mass">{t('mass')} (kg/g)</option>
-                    <option value="volume">{t('volume')} (L/ml)</option>
-                    <option value="count">{t('count')} (pcs)</option>
+                    <option value="mass">{t('mass')} {t('(kg/g)')}</option>
+                    <option value="volume">{t('volume')} {t('(L/ml)')}</option>
+                    <option value="count">{t('count')} {t('(pcs)')}</option>
                   </select>
                 </div>
                 <div className="form-group" style={{ flex: 1 }}>
-                  <label>{t('reorderLevel')} (base unit)</label>
-                  <input type="number" value={editForm.reorderLevel} onChange={e => setEditForm({...editForm, reorderLevel: e.target.value})} placeholder="e.g. 5000 (for 5kg)" required />
+                  <label>{t('reorderLevel')} {t('(base unit)')}</label>
+                  <input type="number" value={editForm.reorderLevel} onChange={e => setEditForm({...editForm, reorderLevel: e.target.value})} placeholder={t('e.g. 5000 (for 5kg)')} required />
                 </div>
               </div>
               <div className="modal-actions">
@@ -511,7 +511,7 @@ export default function Stock() {
             </div>
 
             <div className="modal-actions" style={{ marginTop: '1.5rem' }}>
-              <button className="btn-cancel" onClick={() => setModalType(null)}>Close</button>
+              <button className="btn-cancel" onClick={() => setModalType(null)}>{t('Close')}</button>
             </div>
           </div>
         </div>
@@ -529,10 +529,10 @@ export default function Stock() {
                   <thead>
                     <tr>
                       <th>{t('date')}</th>
-                      <th>Type</th>
-                      <th>Amount</th>
+                      <th>{t('Type')}</th>
+                      <th>{t('Amount')}</th>
                       <th>{t('note')}</th>
-                      <th>User</th>
+                      <th>{t('User')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -557,7 +557,7 @@ export default function Stock() {
             </div>
 
             <div className="modal-actions" style={{ marginTop: '1.5rem' }}>
-              <button className="btn-cancel" onClick={() => setModalType(null)}>Close</button>
+              <button className="btn-cancel" onClick={() => setModalType(null)}>{t('Close')}</button>
             </div>
           </div>
         </div>

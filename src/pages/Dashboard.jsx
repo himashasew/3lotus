@@ -73,7 +73,7 @@ export default function Dashboard() {
         <div className="stat-card revenue">
           <div className="stat-info">
             <h3>{t('totalRevenue')}</h3>
-            <div className="stat-value">Rs. {stats.revenue.toLocaleString()}</div>
+            <div className="stat-value">{t('Rs.')} {stats.revenue.toLocaleString()}</div>
           </div>
           <div className="stat-icon">💰</div>
         </div>
@@ -98,7 +98,7 @@ export default function Dashboard() {
                 <tr key={order.id}>
                   <td>{order.clientName || '-'}</td>
                   <td>{order.date || '-'}</td>
-                  <td>Rs. {(order.total || 0).toLocaleString()}</td>
+                  <td>{t('Rs.')} {(order.total || 0).toLocaleString()}</td>
                   <td>
                     <span className={`status-badge ${(order.status || 'pending').toLowerCase()}`}>
                       {order.status || 'Pending'}

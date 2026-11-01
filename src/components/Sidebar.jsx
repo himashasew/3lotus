@@ -63,8 +63,8 @@ export default function Sidebar({ isOpen, onClose }) {
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <div className="sidebar-header" style={{ position: 'relative' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <img src="/3 lotus.svg" alt="3 Lotus" />
-            <h2>3 Lotus</h2>
+            <img src="/3 lotus.svg" alt={t('3 Lotus')} />
+            <h2>{t('3 Lotus')}</h2>
           </div>
           {hasAccess('ADMIN') && (
             <div className="notif-bell" onClick={() => setShowNotif(!showNotif)} style={{ cursor: 'pointer', position: 'relative', fontSize: '1.25rem' }}>
@@ -155,7 +155,7 @@ export default function Sidebar({ isOpen, onClose }) {
             </div>
             <div className="user-details">
               <div className="name">{userProfile?.displayName}</div>
-              <div className="role">{userProfile?.role === 'DEVELOPER' ? 'ADMIN' : userProfile?.role}</div>
+              <div className="role">{userProfile?.role === 'DEVELOPER' ? t('ADMIN') : userProfile?.role}</div>
             </div>
           </div>
           <button className="btn-logout" onClick={logout}>

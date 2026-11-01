@@ -99,7 +99,7 @@ export default function Orders() {
                 <th>{t('client')}</th>
                 <th>{t('date')}</th>
                 <th>{t('items')}</th>
-                <th>{t('total')} (Rs.)</th>
+                <th>{t('total')} {t('(Rs.)')}</th>
                 <th>{t('status')}</th>
                 <th>{t('actions')}</th>
               </tr>
@@ -182,7 +182,7 @@ export default function Orders() {
                       onChange={e => updateItem(i, 'qty', Number(e.target.value))}
                       className="order-item-qty"
                     />
-                    <span className="order-item-subtotal">Rs. {(item.qty * item.price).toLocaleString()}</span>
+                    <span className="order-item-subtotal">{t('Rs.')} {(item.qty * item.price).toLocaleString()}</span>
                     {form.items.length > 1 && (
                       <button type="button" className="order-item-remove" onClick={() => removeItem(i)}>✕</button>
                     )}
@@ -192,7 +192,7 @@ export default function Orders() {
               </div>
 
               <div className="order-total">
-                {t('total')}: Rs. {calcTotal().toLocaleString()}
+                {t('total')}{t(': Rs.')} {calcTotal().toLocaleString()}
               </div>
 
               <div className="modal-actions">

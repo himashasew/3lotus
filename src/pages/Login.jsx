@@ -31,8 +31,8 @@ export default function Login() {
     <div className="login-page">
       <div className="login-card">
         <div className="login-logo">
-          <img src="/3 lotus.svg" alt="3 Lotus Logo" />
-          <h1>3 Lotus CRM</h1>
+          <img src="/3 lotus.svg" alt={t('3 Lotus Logo')} />
+          <h1>{t('3 Lotus CRM')}</h1>
           <p>{t('welcome')}</p>
         </div>
 
@@ -43,7 +43,7 @@ export default function Login() {
             <label>{t('email')}</label>
             <input
               type="email"
-              placeholder="you@example.com"
+              placeholder={t('you@example.com')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required

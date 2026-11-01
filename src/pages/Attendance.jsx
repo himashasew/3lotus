@@ -1,10 +1,13 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDocs, updateDoc, deleteDoc, doc, query, where, db } from '../services/data';
 import { STATUSES, LEAVE_TYPES, summarise, leaveTaken, defaultHours, daysInMonth, today, DEFAULT_RATES } from '../lib/payroll';
 
 const pad = (n) => String(n).padStart(2, '0');
 
 export default function Attendance() {
+  const { t, i18n } = useTranslation();
+  const locale = { en: 'en-GB', si: 'si-LK', ta: 'ta-LK' }[i18n.language] || 'en-GB';
   const [date, setDate] = useState(today());
   const [employees, setEmployees] = useState([]);
   const [monthRecords, setMonthRecords] = useState([]);
@@ -83,7 +86,7 @@ export default function Attendance() {
         else fresh.push(data);
       }
       await addDocs(collection(db, 'attendance'), fresh);
-      setMessage({ text: `Attendance saved for ${date}.`, type: 'success' });
+      setMessage({ text: t('Attendance saved for {{date}}.', { date }), type: 'success' });
       await load();
     } catch (err) {
       setMessage({ text: err.message, type: 'error' });
@@ -110,7 +113,7 @@ export default function Attendance() {
 
   return (
     <div className="fade-in">
-      <h1 style={{ marginBottom: '1.5rem' }}>Attendance</h1>
+      <h1 style={{ marginBottom: '1.5rem' }}>{t('Attendance')}</h1>
 
       {message.text && <div className={message.type === 'success' ? 'msg-success' : 'msg-error'}>{message.text}</div>}
 
@@ -119,18 +122,18 @@ export default function Attendance() {
           <button className="btn-secondary" onClick={() => shiftDay(-1)}>←</button>
           <input type="date" value={date} onChange={e => e.target.value && setDate(e.target.value)} style={{ width: 'auto' }} />
           <button className="btn-secondary" onClick={() => shiftDay(1)}>→</button>
-          <button className="btn-secondary" onClick={() => setDate(today())}>Today</button>
-          <span className="muted">{new Date(date + 'T00:00:00').toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
+          <button className="btn-secondary" onClick={() => setDate(today())}>{t('Today')}</button>
+          <span className="muted">{new Date(date + 'T00:00:00').toLocaleDateString(locale, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}</span>
           <span style={{ flex: 1 }} />
-          <button className="btn-secondary" onClick={markAllPresent}>✔ Mark unmarked as present</button>
-          <button className="btn-add" onClick={save} disabled={saving}>{saving ? 'Saving…' : `Save attendance (${marked}/${employees.length})`}</button>
+          <button className="btn-secondary" onClick={markAllPresent}>{t('✔ Mark unmarked as present')}</button>
+          <button className="btn-add" onClick={save} disabled={saving}>{saving ? t('Saving…') : t('Save attendance ({{marked}}/{{total}})', { marked, total: employees.length })}</button>
         </div>
 
         {employees.length > 0 ? (
           <div className="table-scroll">
             <table className="data-table">
               <thead>
-                <tr><th>Employee</th><th>Status</th><th>Hours worked</th><th>Overtime hrs</th><th>Note</th></tr>
+                <tr><th>{t('Employee')}</th><th>{t('Status')}</th><th>{t('Hours worked')}</th><th>{t('Overtime hrs')}</th><th>{t('Note')}</th></tr>
               </thead>
               <tbody>
                 {employees.map(e => {
@@ -144,13 +147,13 @@ export default function Attendance() {
                       </td>
                       <td>
                         <select value={r.status} onChange={ev => changeStatus(e, ev.target.value)} style={{ minWidth: 190, borderLeft: `4px solid ${st ? st.color : 'transparent'}` }}>
-                          <option value="">— not marked —</option>
-                          {Object.entries(STATUSES).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}
+                          <option value="">{t('— not marked —')}</option>
+                          {Object.entries(STATUSES).map(([k, v]) => <option key={k} value={k}>{t(v.label)}</option>)}
                         </select>
                       </td>
                       <td><input className="num-input" type="number" min="0" step="any" value={r.hours} disabled={!r.status} onChange={ev => setRow(e.id, { hours: ev.target.value })} /></td>
                       <td><input className="num-input" type="number" min="0" step="any" value={r.otHours} disabled={!r.status} onChange={ev => setRow(e.id, { otHours: ev.target.value })} /></td>
-                      <td><input value={r.note} disabled={!r.status} onChange={ev => setRow(e.id, { note: ev.target.value })} placeholder="optional" /></td>
+                      <td><input value={r.note} disabled={!r.status} onChange={ev => setRow(e.id, { note: ev.target.value })} placeholder={t('optional')} /></td>
                     </tr>
                   );
                 })}
@@ -158,24 +161,24 @@ export default function Attendance() {
             </table>
           </div>
         ) : (
-          <div className="empty-state"><div className="empty-icon">🗓️</div><p>No active employees yet. Add them on the Employees page.</p></div>
+          <div className="empty-state"><div className="empty-icon">🗓️</div><p>{t('No active employees yet. Add them on the Employees page.')}</p></div>
         )}
       </div>
 
       {employees.length > 0 && (
         <>
           <div className="panel">
-            <h3>Month view — {new Date(month + '-01T00:00:00').toLocaleDateString('en-GB', { month: 'long', year: 'numeric' })}</h3>
+            <h3>{t('Month view —')} {new Date(month + '-01T00:00:00').toLocaleDateString(locale, { month: 'long', year: 'numeric' })}</h3>
             <div className="toolbar" style={{ gap: '0.4rem' }}>
               {Object.entries(STATUSES).map(([k, v]) => (
-                <span key={k} className="chip" style={{ background: v.color }}>{v.short} · {v.label}</span>
+                <span key={k} className="chip" style={{ background: v.color }}>{v.short} · {t(v.label)}</span>
               ))}
             </div>
             <div className="table-scroll">
               <table className="data-table" style={{ fontSize: '0.72rem' }}>
                 <thead>
                   <tr>
-                    <th style={{ minWidth: 130 }}>Employee</th>
+                    <th style={{ minWidth: 130 }}>{t('Employee')}</th>
                     {Array.from({ length: nDays }, (_, i) => {
                       const dstr = `${month}-${pad(i + 1)}`;
                       return <th key={i} style={{ padding: '0.4rem 0.25rem', textAlign: 'center', cursor: 'pointer', background: dstr === date ? 'var(--bg-hover)' : undefined }} onClick={() => setDate(dstr)}>{i + 1}</th>;
@@ -191,7 +194,7 @@ export default function Attendance() {
                         const rec = monthRecords.find(r => r.employeeId === e.id && r.date === dstr);
                         const st = rec && STATUSES[rec.status];
                         return (
-                          <td key={i} style={{ padding: '0.3rem 0.15rem', textAlign: 'center', cursor: 'pointer' }} onClick={() => setDate(dstr)} title={st ? st.label : 'Not marked'}>
+                          <td key={i} style={{ padding: '0.3rem 0.15rem', textAlign: 'center', cursor: 'pointer' }} onClick={() => setDate(dstr)} title={st ? t(st.label) : t('Not marked')}>
                             {st ? <span className="chip" style={{ background: st.color, padding: '0.05rem 0.3rem', fontSize: '0.65rem' }}>{st.short}</span> : <span className="muted">·</span>}
                           </td>
                         );
@@ -204,13 +207,13 @@ export default function Attendance() {
           </div>
 
           <div className="panel">
-            <h3>Month totals and leave balances ({year})</h3>
+            <h3>{t('Month totals and leave balances (')}{year})</h3>
             <div className="table-scroll">
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Employee</th><th>Present</th><th>Half</th><th>Absent</th><th>Leave this month</th><th>Holidays</th><th>Hours</th><th>OT hrs</th>
-                    <th>Annual left</th><th>Casual left</th><th>Medical left</th><th>Unpaid taken ({year})</th>
+                    <th>{t('Employee')}</th><th>{t('Present')}</th><th>{t('Half')}</th><th>{t('Absent')}</th><th>{t('Leave this month')}</th><th>{t('Holidays')}</th><th>{t('Hours')}</th><th>{t('OT hrs')}</th>
+                    <th>{t('Annual left')}</th><th>{t('Casual left')}</th><th>{t('Medical left')}</th><th>{t('Unpaid taken (')}{year})</th>
                   </tr>
                 </thead>
                 <tbody>

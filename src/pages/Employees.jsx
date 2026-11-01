@@ -86,22 +86,22 @@ export default function Employees() {
       <h1 style={{ marginBottom: '1.5rem' }}>{t('employees')}</h1>
 
       <div className="dashboard-grid">
-        <div className="stat-card clients"><div className="stat-info"><h3>Active staff</h3><div className="stat-value">{active.length}</div></div><div className="stat-icon">👥</div></div>
-        <div className="stat-card orders"><div className="stat-info"><h3>Daily / Hourly</h3><div className="stat-value">{active.filter(e => e.payType === 'daily' || e.payType === 'hourly').length}</div></div><div className="stat-icon">🗓️</div></div>
-        <div className="stat-card revenue"><div className="stat-info"><h3>Monthly salaried</h3><div className="stat-value">{active.filter(e => (e.payType || 'monthly') === 'monthly').length}</div></div><div className="stat-icon">💼</div></div>
+        <div className="stat-card clients"><div className="stat-info"><h3>{t('Active staff')}</h3><div className="stat-value">{active.length}</div></div><div className="stat-icon">👥</div></div>
+        <div className="stat-card orders"><div className="stat-info"><h3>{t('Daily / Hourly')}</h3><div className="stat-value">{active.filter(e => e.payType === 'daily' || e.payType === 'hourly').length}</div></div><div className="stat-icon">🗓️</div></div>
+        <div className="stat-card revenue"><div className="stat-info"><h3>{t('Monthly salaried')}</h3><div className="stat-value">{active.filter(e => (e.payType || 'monthly') === 'monthly').length}</div></div><div className="stat-icon">💼</div></div>
       </div>
 
       <div className="data-section">
         <div className="data-section-header">
           <div className="search-bar">
             <span className="search-icon">🔍</span>
-            <input placeholder="Search name, NIC, phone…" value={search} onChange={e => setSearch(e.target.value)} />
+            <input placeholder={t('Search name, NIC, phone…')} value={search} onChange={e => setSearch(e.target.value)} />
           </div>
           <div className="toolbar" style={{ marginBottom: 0 }}>
             <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} style={{ width: 'auto' }}>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
-              <option value="all">All</option>
+              <option value="active">{t('Active')}</option>
+              <option value="inactive">{t('Inactive')}</option>
+              <option value="all">{t('All')}</option>
             </select>
             <button className="btn-add" onClick={openAdd}>+ {t('addEmployee')}</button>
           </div>
@@ -114,9 +114,9 @@ export default function Employees() {
                 <tr>
                   <th>{t('employeeName')}</th>
                   <th>{t('phone')}</th>
-                  <th>Pay basis</th>
-                  <th>Rate (Rs.)</th>
-                  <th>EPF / ETF</th>
+                  <th>{t('Pay basis')}</th>
+                  <th>{t('Rate (Rs.)')}</th>
+                  <th>{t('EPF / ETF')}</th>
                   <th>{t('joinDate')}</th>
                   <th>{t('actions')}</th>
                 </tr>
@@ -129,9 +129,9 @@ export default function Employees() {
                       <div className="muted" style={{ fontSize: '0.78rem' }}>{emp.designation || emp.role}{emp.nic ? ` · ${emp.nic}` : ''}</div>
                     </td>
                     <td>{emp.phone}</td>
-                    <td><span className="status-badge completed">{PAY_TYPES[emp.payType || 'monthly']}</span></td>
+                    <td><span className="status-badge completed">{t(PAY_TYPES[emp.payType || 'monthly'])}</span></td>
                     <td>{money(emp.salary)}</td>
-                    <td>{emp.epf ? 'EPF ' : ''}{emp.etf ? 'ETF' : ''}{!emp.epf && !emp.etf ? <span className="muted">—</span> : null}</td>
+                    <td>{emp.epf ? t('EPF ') : ''}{emp.etf ? t('ETF') : ''}{!emp.epf && !emp.etf ? <span className="muted">—</span> : null}</td>
                     <td>{emp.joinDate}</td>
                     <td>
                       <div className="action-btns">
@@ -158,65 +158,65 @@ export default function Employees() {
             <h2>{editId ? t('editEmployee') : t('addEmployee')}</h2>
             {error && <div className="msg-error">{error}</div>}
             <form onSubmit={handleSave}>
-              <h3 className="muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', margin: '0.5rem 0' }}>Personal details</h3>
+              <h3 className="muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', margin: '0.5rem 0' }}>{t('Personal details')}</h3>
               <div className="grid-2">
                 <div className="form-group"><label>{t('employeeName')}</label><input value={form.name} onChange={set('name')} required /></div>
-                <div className="form-group"><label>NIC / ID number</label><input value={form.nic} onChange={set('nic')} /></div>
+                <div className="form-group"><label>{t('NIC / ID number')}</label><input value={form.nic} onChange={set('nic')} /></div>
                 <div className="form-group"><label>{t('phone')}</label><input value={form.phone} onChange={set('phone')} /></div>
-                <div className="form-group"><label>Date of birth</label><input type="date" value={form.dob} onChange={set('dob')} /></div>
-                <div className="form-group"><label>Gender</label>
+                <div className="form-group"><label>{t('Date of birth')}</label><input type="date" value={form.dob} onChange={set('dob')} /></div>
+                <div className="form-group"><label>{t('Gender')}</label>
                   <select value={form.gender} onChange={set('gender')}>
-                    <option value="">—</option><option>Male</option><option>Female</option><option>Other</option>
+                    <option value="">—</option><option>{t('Male')}</option><option>{t('Female')}</option><option>{t('Other')}</option>
                   </select>
                 </div>
                 <div className="form-group"><label>{t('address')}</label><input value={form.address} onChange={set('address')} /></div>
-                <div className="form-group"><label>Emergency contact name</label><input value={form.emergencyName} onChange={set('emergencyName')} /></div>
-                <div className="form-group"><label>Emergency contact phone</label><input value={form.emergencyPhone} onChange={set('emergencyPhone')} /></div>
+                <div className="form-group"><label>{t('Emergency contact name')}</label><input value={form.emergencyName} onChange={set('emergencyName')} /></div>
+                <div className="form-group"><label>{t('Emergency contact phone')}</label><input value={form.emergencyPhone} onChange={set('emergencyPhone')} /></div>
               </div>
 
-              <h3 className="muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', margin: '0.75rem 0 0.5rem' }}>Job</h3>
+              <h3 className="muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', margin: '0.75rem 0 0.5rem' }}>{t('Job')}</h3>
               <div className="grid-2">
-                <div className="form-group"><label>Designation (e.g. Cook, Waiter)</label><input value={form.designation} onChange={set('designation')} /></div>
-                <div className="form-group"><label>Department</label><input value={form.department} onChange={set('department')} placeholder="Kitchen, Service, Delivery…" /></div>
+                <div className="form-group"><label>{t('Designation (e.g. Cook, Waiter)')}</label><input value={form.designation} onChange={set('designation')} /></div>
+                <div className="form-group"><label>{t('Department')}</label><input value={form.department} onChange={set('department')} placeholder={t('Kitchen, Service, Delivery…')} /></div>
                 <div className="form-group"><label>{t('joinDate')}</label><input type="date" value={form.joinDate} onChange={set('joinDate')} /></div>
-                <div className="form-group"><label>Status</label>
+                <div className="form-group"><label>{t('Status')}</label>
                   <select value={form.status} onChange={set('status')}>
-                    <option value="active">Active</option><option value="inactive">Inactive / left</option>
+                    <option value="active">{t('Active')}</option><option value="inactive">{t('Inactive / left')}</option>
                   </select>
                 </div>
               </div>
 
-              <h3 className="muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', margin: '0.75rem 0 0.5rem' }}>Pay</h3>
+              <h3 className="muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', margin: '0.75rem 0 0.5rem' }}>{t('Pay')}</h3>
               <div className="grid-2">
-                <div className="form-group"><label>Pay basis</label>
+                <div className="form-group"><label>{t('Pay basis')}</label>
                   <select value={form.payType} onChange={set('payType')}>
-                    {Object.entries(PAY_TYPES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    {Object.entries(PAY_TYPES).map(([k, v]) => <option key={k} value={k}>{t(v)}</option>)}
                   </select>
                 </div>
-                <div className="form-group"><label>{rateLabel(form.payType)}</label><input type="number" min="0" step="any" value={form.salary} onChange={set('salary')} required /></div>
-                <div className="form-group"><label>Fixed monthly allowance (Rs.)</label><input type="number" min="0" step="any" value={form.allowance} onChange={set('allowance')} /></div>
-                <div className="form-group"><label>Standard hours per day</label><input type="number" min="1" step="any" value={form.stdHours} onChange={set('stdHours')} /></div>
-                <div className="form-group"><label>Overtime multiplier (× hourly rate)</label><input type="number" min="1" step="any" value={form.otMultiplier} onChange={set('otMultiplier')} /></div>
-                <div className="form-group"><label>EPF member no.</label><input value={form.epfNo} onChange={set('epfNo')} /></div>
+                <div className="form-group"><label>{t(rateLabel(form.payType))}</label><input type="number" min="0" step="any" value={form.salary} onChange={set('salary')} required /></div>
+                <div className="form-group"><label>{t('Fixed monthly allowance (Rs.)')}</label><input type="number" min="0" step="any" value={form.allowance} onChange={set('allowance')} /></div>
+                <div className="form-group"><label>{t('Standard hours per day')}</label><input type="number" min="1" step="any" value={form.stdHours} onChange={set('stdHours')} /></div>
+                <div className="form-group"><label>{t('Overtime multiplier (× hourly rate)')}</label><input type="number" min="1" step="any" value={form.otMultiplier} onChange={set('otMultiplier')} /></div>
+                <div className="form-group"><label>{t('EPF member no.')}</label><input value={form.epfNo} onChange={set('epfNo')} /></div>
               </div>
               <div className="toolbar">
-                <label style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}><input type="checkbox" checked={form.epf} onChange={set('epf')} style={{ width: 'auto' }} /> EPF applies</label>
-                <label style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}><input type="checkbox" checked={form.etf} onChange={set('etf')} style={{ width: 'auto' }} /> ETF applies</label>
-                <label style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}><input type="checkbox" checked={form.paidHolidays} onChange={set('paidHolidays')} style={{ width: 'auto' }} /> Public holidays are paid</label>
+                <label style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}><input type="checkbox" checked={form.epf} onChange={set('epf')} style={{ width: 'auto' }} /> {t('EPF applies')}</label>
+                <label style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}><input type="checkbox" checked={form.etf} onChange={set('etf')} style={{ width: 'auto' }} /> {t('ETF applies')}</label>
+                <label style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}><input type="checkbox" checked={form.paidHolidays} onChange={set('paidHolidays')} style={{ width: 'auto' }} /> {t('Public holidays are paid')}</label>
               </div>
               <div className="grid-2">
-                <div className="form-group"><label>Bank name</label><input value={form.bankName} onChange={set('bankName')} /></div>
-                <div className="form-group"><label>Bank account no.</label><input value={form.bankAccount} onChange={set('bankAccount')} /></div>
+                <div className="form-group"><label>{t('Bank name')}</label><input value={form.bankName} onChange={set('bankName')} /></div>
+                <div className="form-group"><label>{t('Bank account no.')}</label><input value={form.bankAccount} onChange={set('bankAccount')} /></div>
               </div>
 
-              <h3 className="muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', margin: '0.75rem 0 0.5rem' }}>Yearly leave entitlement (days)</h3>
+              <h3 className="muted" style={{ fontSize: '0.8rem', textTransform: 'uppercase', margin: '0.75rem 0 0.5rem' }}>{t('Yearly leave entitlement (days)')}</h3>
               <div className="grid-3">
-                <div className="form-group"><label>Annual</label><input type="number" min="0" value={form.annualLeave} onChange={set('annualLeave')} /></div>
-                <div className="form-group"><label>Casual</label><input type="number" min="0" value={form.casualLeave} onChange={set('casualLeave')} /></div>
-                <div className="form-group"><label>Medical</label><input type="number" min="0" value={form.medicalLeave} onChange={set('medicalLeave')} /></div>
+                <div className="form-group"><label>{t('Annual')}</label><input type="number" min="0" value={form.annualLeave} onChange={set('annualLeave')} /></div>
+                <div className="form-group"><label>{t('Casual')}</label><input type="number" min="0" value={form.casualLeave} onChange={set('casualLeave')} /></div>
+                <div className="form-group"><label>{t('Medical')}</label><input type="number" min="0" value={form.medicalLeave} onChange={set('medicalLeave')} /></div>
               </div>
 
-              <div className="form-group"><label>Notes</label><input value={form.notes} onChange={set('notes')} /></div>
+              <div className="form-group"><label>{t('Notes')}</label><input value={form.notes} onChange={set('notes')} /></div>
 
               <div className="modal-actions">
                 <button type="button" className="btn-cancel" onClick={() => setShowModal(false)}>{t('cancel')}</button>

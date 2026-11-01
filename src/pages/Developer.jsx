@@ -78,7 +78,7 @@ export default function Developer() {
     return (
       <div className="empty-state">
         <div className="empty-icon">🔒</div>
-        <p>Access Denied</p>
+        <p>{t('Access Denied')}</p>
       </div>
     );
   }
@@ -166,14 +166,14 @@ export default function Developer() {
       {/* System Info */}
       <div className="data-section">
         <div className="data-section-header">
-          <h2>ℹ️ System Info</h2>
+          <h2>{t('ℹ️ System Info')}</h2>
         </div>
         <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', lineHeight: '2' }}>
-          <p><strong style={{ color: 'var(--text-main)' }}>App:</strong> 3 Lotus CRM v1.0.0</p>
-          <p><strong style={{ color: 'var(--text-main)' }}>Framework:</strong> React + Vite</p>
-          <p><strong style={{ color: 'var(--text-main)' }}>Database:</strong> Firebase Firestore</p>
-          <p><strong style={{ color: 'var(--text-main)' }}>Auth:</strong> Firebase Authentication</p>
-          <p><strong style={{ color: 'var(--text-main)' }}>Project ID:</strong> lotus-crm-262f3</p>
+          <p><strong style={{ color: 'var(--text-main)' }}>{t('App:')}</strong> {t('3 Lotus CRM v1.0.0')}</p>
+          <p><strong style={{ color: 'var(--text-main)' }}>{t('Framework:')}</strong> {t('React + Vite')}</p>
+          <p><strong style={{ color: 'var(--text-main)' }}>{t('Database:')}</strong> {t('Supabase (Postgres)')}</p>
+          <p><strong style={{ color: 'var(--text-main)' }}>{t('Auth:')}</strong> {t('Supabase Auth')}</p>
+          <p><strong style={{ color: 'var(--text-main)' }}>{t('Project ID:')}</strong> {t('lotus-crm-262f3')}</p>
         </div>
       </div>
 

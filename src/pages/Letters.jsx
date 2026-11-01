@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, db } from '../services/data';
 import { today } from '../lib/payroll';
 import { printElementById, downloadElementAsPdf, formatDate, COMPANY_DEFAULTS } from '../lib/documents';
@@ -12,6 +13,7 @@ const BLANK = {
 };
 
 export default function Letters() {
+  const { t } = useTranslation();
   const { company, save: saveCompany, error: companyError } = useCompany();
   const { hasAccess } = useAuth();
   const canEditCompany = hasAccess('MANAGER');
@@ -50,7 +52,7 @@ export default function Letters() {
     try {
       const { addressText, ...rest } = co;
       await saveCompany({ ...rest, addressLines: addressText.split('\n').map(s => s.trim()).filter(Boolean) });
-      setMessage({ text: 'Company details saved. They now appear on invoices, payslips and letters.', type: 'success' });
+      setMessage({ text: t('Company details saved. They now appear on invoices, payslips and letters.'), type: 'success' });
     } catch (err) {
       setMessage({ text: err.message, type: 'error' });
     }
@@ -65,7 +67,7 @@ export default function Letters() {
       const data = { ...form, name: form.name || form.subject || `Letter ${form.date}`, updatedAt: new Date().toISOString() };
       if (letterId) await updateDoc(doc(db, 'letterheads', letterId), data);
       else setLetterId((await addDoc(collection(db, 'letterheads'), { ...data, createdAt: new Date().toISOString() })).id);
-      setMessage({ text: 'Letter saved.', type: 'success' });
+      setMessage({ text: t('Letter saved.'), type: 'success' });
       await loadLetters();
     } catch (err) {
       setMessage({ text: err.message, type: 'error' });
@@ -86,37 +88,37 @@ export default function Letters() {
 
   return (
     <div className="fade-in">
-      <h1 style={{ marginBottom: '1.5rem' }}>Letterhead &amp; Letters</h1>
+      <h1 style={{ marginBottom: '1.5rem' }}>{t('Letterhead & Letters')}</h1>
       {message.text && <div className={message.type === 'success' ? 'msg-success' : 'msg-error'}>{message.text}</div>}
-      {companyError && <div className="msg-error">{companyError.message} — run supabase/migration-002-hr-invoices.sql in Supabase first.</div>}
+      {companyError && <div className="msg-error">{companyError.message} {t('— run supabase/migration-002-hr-invoices.sql in Supabase first.')}</div>}
 
       <div className="split-view">
         <div>
           <div className="panel">
             <div className="toolbar" style={{ marginBottom: '0.6rem' }}>
-              <h3 style={{ margin: 0, marginRight: 'auto' }}>Write a letter</h3>
-              <button className="btn-secondary" onClick={newLetter}>New</button>
+              <h3 style={{ margin: 0, marginRight: 'auto' }}>{t('Write a letter')}</h3>
+              <button className="btn-secondary" onClick={newLetter}>{t('New')}</button>
             </div>
             <label style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.8rem' }}>
-              <input type="checkbox" checked={form.blank} onChange={set('blank')} style={{ width: 'auto' }} /> Blank letterhead only (for hand-written letters)
+              <input type="checkbox" checked={form.blank} onChange={set('blank')} style={{ width: 'auto' }} /> {t('Blank letterhead only (for hand-written letters)')}
             </label>
             {!form.blank && (<>
-              <div className="form-group"><label>Date</label><input type="date" value={form.date} onChange={set('date')} /></div>
-              <div className="form-group"><label>To (name)</label><input value={form.toName} onChange={set('toName')} /></div>
-              <div className="form-group"><label>To (address)</label><textarea rows={3} value={form.toAddress} onChange={set('toAddress')} /></div>
-              <div className="form-group"><label>Subject</label><input value={form.subject} onChange={set('subject')} /></div>
-              <div className="form-group"><label>Salutation</label><input value={form.salutation} onChange={set('salutation')} /></div>
-              <div className="form-group"><label>Letter body</label><textarea rows={10} value={form.body} onChange={set('body')} placeholder="Write the letter here…" /></div>
-              <div className="form-group"><label>Closing</label><input value={form.closing} onChange={set('closing')} /></div>
+              <div className="form-group"><label>{t('Date')}</label><input type="date" value={form.date} onChange={set('date')} /></div>
+              <div className="form-group"><label>{t('To (name)')}</label><input value={form.toName} onChange={set('toName')} /></div>
+              <div className="form-group"><label>{t('To (address)')}</label><textarea rows={3} value={form.toAddress} onChange={set('toAddress')} /></div>
+              <div className="form-group"><label>{t('Subject')}</label><input value={form.subject} onChange={set('subject')} /></div>
+              <div className="form-group"><label>{t('Salutation')}</label><input value={form.salutation} onChange={set('salutation')} /></div>
+              <div className="form-group"><label>{t('Letter body')}</label><textarea rows={10} value={form.body} onChange={set('body')} placeholder={t('Write the letter here…')} /></div>
+              <div className="form-group"><label>{t('Closing')}</label><input value={form.closing} onChange={set('closing')} /></div>
               <div className="grid-2">
-                <div className="form-group"><label>Signed by</label><input value={form.signatory} onChange={set('signatory')} /></div>
-                <div className="form-group"><label>Designation</label><input value={form.designation} onChange={set('designation')} /></div>
+                <div className="form-group"><label>{t('Signed by')}</label><input value={form.signatory} onChange={set('signatory')} /></div>
+                <div className="form-group"><label>{t('Designation')}</label><input value={form.designation} onChange={set('designation')} /></div>
               </div>
             </>)}
             <div className="toolbar" style={{ marginBottom: 0 }}>
-              <button className="btn-add" onClick={() => printElementById('letter-sheet')}>🖨 Print</button>
-              <button className="btn-secondary" onClick={() => downloadElementAsPdf('letter-sheet', form.blank ? 'Letterhead' : fileName)}>⬇ PDF</button>
-              {!form.blank && <button className="btn-secondary" onClick={saveLetter} disabled={busy}>💾 {letterId ? 'Update' : 'Save'} letter</button>}
+              <button className="btn-add" onClick={() => printElementById('letter-sheet')}>{t('🖨 Print')}</button>
+              <button className="btn-secondary" onClick={() => downloadElementAsPdf('letter-sheet', form.blank ? 'Letterhead' : fileName)}>{t('⬇ PDF')}</button>
+              {!form.blank && <button className="btn-secondary" onClick={saveLetter} disabled={busy}>💾 {letterId ? t('Update') : t('Save')} {t('letter')}</button>}
             </div>
           </div>
         </div>
@@ -145,34 +147,34 @@ export default function Letters() {
 
       <div className="grid-2" style={{ alignItems: 'start', marginTop: '1.1rem' }}>
           <div className="panel">
-            <h3>Company &amp; letterhead details</h3>
+            <h3>{t('Company & letterhead details')}</h3>
             {co && (
               <form onSubmit={saveCo}>
-                <div className="form-group"><label>Business name</label><input value={co.name || ''} onChange={setC('name')} disabled={!canEditCompany} /></div>
-                <div className="form-group"><label>Address (one line per row)</label><textarea rows={3} value={co.addressText || ''} onChange={setC('addressText')} disabled={!canEditCompany} /></div>
-                <div className="form-group"><label>Phone numbers</label><input value={co.phone || ''} onChange={setC('phone')} disabled={!canEditCompany} /></div>
-                <div className="form-group"><label>Email</label><input value={co.email || ''} onChange={setC('email')} disabled={!canEditCompany} /></div>
-                <div className="form-group"><label>Registration / VAT no. (shown under contacts)</label><input value={co.taxId || ''} onChange={setC('taxId')} disabled={!canEditCompany} /></div>
-                <div className="form-group"><label>Bank details for invoices</label><textarea rows={3} value={co.bankDetails || ''} onChange={setC('bankDetails')} placeholder={'Bank: …\nAccount name: …\nAccount no: …\nBranch: …'} disabled={!canEditCompany} /></div>
+                <div className="form-group"><label>{t('Business name')}</label><input value={co.name || ''} onChange={setC('name')} disabled={!canEditCompany} /></div>
+                <div className="form-group"><label>{t('Address (one line per row)')}</label><textarea rows={3} value={co.addressText || ''} onChange={setC('addressText')} disabled={!canEditCompany} /></div>
+                <div className="form-group"><label>{t('Phone numbers')}</label><input value={co.phone || ''} onChange={setC('phone')} disabled={!canEditCompany} /></div>
+                <div className="form-group"><label>{t('Email')}</label><input value={co.email || ''} onChange={setC('email')} disabled={!canEditCompany} /></div>
+                <div className="form-group"><label>{t('Registration / VAT no. (shown under contacts)')}</label><input value={co.taxId || ''} onChange={setC('taxId')} disabled={!canEditCompany} /></div>
+                <div className="form-group"><label>{t('Bank details for invoices')}</label><textarea rows={3} value={co.bankDetails || ''} onChange={setC('bankDetails')} placeholder={t('Bank: …\nAccount name: …\nAccount no: …\nBranch: …')} disabled={!canEditCompany} /></div>
                 <div className="grid-2">
-                  <div className="form-group"><label>Invoice prefix</label><input value={co.invoicePrefix || ''} onChange={setC('invoicePrefix')} disabled={!canEditCompany} /></div>
-                  <div className="form-group"><label>Accent colour (pink line)</label><input type="color" value={co.accent || '#c2467a'} onChange={setC('accent')} disabled={!canEditCompany} style={{ height: 42, padding: 2 }} /></div>
+                  <div className="form-group"><label>{t('Invoice prefix')}</label><input value={co.invoicePrefix || ''} onChange={setC('invoicePrefix')} disabled={!canEditCompany} /></div>
+                  <div className="form-group"><label>{t('Accent colour (pink line)')}</label><input type="color" value={co.accent || '#c2467a'} onChange={setC('accent')} disabled={!canEditCompany} style={{ height: 42, padding: 2 }} /></div>
                 </div>
-                <div className="form-group"><label>Default invoice notes</label><textarea rows={2} value={co.invoiceNotes || ''} onChange={setC('invoiceNotes')} disabled={!canEditCompany} /></div>
-                <div className="form-group"><label>Default invoice terms</label><textarea rows={2} value={co.invoiceTerms || ''} onChange={setC('invoiceTerms')} disabled={!canEditCompany} /></div>
+                <div className="form-group"><label>{t('Default invoice notes')}</label><textarea rows={2} value={co.invoiceNotes || ''} onChange={setC('invoiceNotes')} disabled={!canEditCompany} /></div>
+                <div className="form-group"><label>{t('Default invoice terms')}</label><textarea rows={2} value={co.invoiceTerms || ''} onChange={setC('invoiceTerms')} disabled={!canEditCompany} /></div>
                 {canEditCompany
                   ? (<div className="toolbar" style={{ marginBottom: 0 }}>
-                      <button type="submit" className="btn-save" disabled={busy} style={{ width: 'auto' }}>Save company details</button>
-                      <button type="button" className="btn-secondary" onClick={resetCo}>Reset to defaults</button>
+                      <button type="submit" className="btn-save" disabled={busy} style={{ width: 'auto' }}>{t('Save company details')}</button>
+                      <button type="button" className="btn-secondary" onClick={resetCo}>{t('Reset to defaults')}</button>
                     </div>)
-                  : <p className="muted">Only managers can change company details.</p>}
+                  : <p className="muted">{t('Only managers can change company details.')}</p>}
               </form>
             )}
           </div>
 
           <div className="panel">
-            <h3>Saved letters</h3>
-            {letters.length === 0 && <p className="muted">No saved letters yet.</p>}
+            <h3>{t('Saved letters')}</h3>
+            {letters.length === 0 && <p className="muted">{t('No saved letters yet.')}</p>}
             {letters.map(l => (
               <div key={l.id} className="bar-row" style={{ justifyContent: 'space-between' }}>
                 <span style={{ flex: 1, cursor: 'pointer' }} onClick={() => openLetter(l)}>
