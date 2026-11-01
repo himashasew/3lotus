@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useUI } from '../context/UIContext';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from '../services/data';
 import { db } from '../services/data';
 
 export default function Clients() {
+  const { confirm } = useUI();
   const { t } = useTranslation();
   const [clients, setClients] = useState([]);
   const [search, setSearch] = useState('');
@@ -33,7 +35,7 @@ export default function Clients() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm(t('confirmDelete'))) {
+    if (await confirm(t('confirmDelete'), { confirmLabel: t('Delete') })) {
       await deleteDoc(doc(db, 'clients', id));
       loadClients();
     }

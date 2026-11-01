@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useUI } from '../context/UIContext';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc } from '../services/data';
 import { db } from '../services/data';
@@ -6,6 +7,7 @@ import { db } from '../services/data';
 const STATUS_OPTIONS = ['Pending', 'Cooking', 'Delivering', 'Completed'];
 
 export default function Orders() {
+  const { confirm } = useUI();
   const { t } = useTranslation();
   const [orders, setOrders] = useState([]);
   const [clients, setClients] = useState([]);
@@ -72,7 +74,7 @@ export default function Orders() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm(t('confirmDelete'))) {
+    if (await confirm(t('confirmDelete'), { confirmLabel: t('Delete') })) {
       await deleteDoc(doc(db, 'orders', id));
       loadAll();
     }

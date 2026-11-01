@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useUI } from '../context/UIContext';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDoc, addDocs, updateDoc, deleteDoc, doc, query, where, serverTimestamp } from '../services/data';
 import { db } from '../services/data';
@@ -31,6 +32,7 @@ const convertToBase = (value, unit) => {
 };
 
 export default function Stock() {
+  const { toast, confirm } = useUI();
   const { t } = useTranslation();
   const { userProfile, hasAccess } = useAuth();
   const [seeding, setSeeding] = useState(false);
@@ -88,7 +90,7 @@ export default function Stock() {
   };
 
   const handleDeleteCategory = async (id) => {
-    if (window.confirm(t('confirmDelete'))) {
+    if (await confirm(t('confirmDelete'), { confirmLabel: t('Delete') })) {
       await deleteDoc(doc(db, 'categories', id));
       loadCategories();
     }
@@ -96,7 +98,7 @@ export default function Stock() {
 
   // --- Starter catalogue (Sri Lankan restaurant & catering items) ---
   const handleLoadStarter = async () => {
-    if (!window.confirm(`Add ${STARTER_CATEGORIES.length} categories and up to ${STARTER_PRODUCTS.length} starter items? Existing names are skipped.`)) return;
+    if (!await confirm(t('Add {{cats}} categories and up to {{items}} starter items? Existing names are skipped.', { cats: STARTER_CATEGORIES.length, items: STARTER_PRODUCTS.length }), { danger: false, confirmLabel: t('Add') })) return;
     setSeeding(true);
     try {
       const catSnap = await getDocs(collection(db, 'categories'));
@@ -120,9 +122,9 @@ export default function Stock() {
 
       await loadCategories();
       await loadProducts();
-      alert(`Done: ${missingCats.length} categories and ${fresh.length} items added.`);
+      toast.success(t('Done: {{cats}} categories and {{items}} items added.', { cats: missingCats.length, items: fresh.length }));
     } catch (err) {
-      alert('Could not load starter items: ' + err.message);
+      toast.error(t('Could not load starter items:') + ' ' + err.message);
     }
     setSeeding(false);
   };
@@ -196,7 +198,7 @@ export default function Stock() {
     // 2. Process Transaction
     const baseQty = convertToBase(uForm.displayQty, uForm.displayUnit);
     if (baseQty <= 0) {
-      alert(t('Please enter a valid quantity.'));
+      toast.warning(t('Please enter a valid quantity.'));
       return;
     }
 
@@ -216,7 +218,7 @@ export default function Stock() {
     const newBalance = uForm.txType === 'IN' ? currentBalance + baseQty : currentBalance - baseQty;
 
     await addDoc(collection(db, 'stock_transactions'), txData);
-    await updateDoc(doc(db, 'products', prod.id), { quantity: newBalance });
+    await updateDoc(doc(db, 'products', prod.id), { quantity: newBalance, hadStock: true });
 
     await addDoc(collection(db, 'notifications'), {
       title: `Stock ${uForm.txType}`,
@@ -254,7 +256,7 @@ export default function Stock() {
   };
 
   const handleDeleteProduct = async (id) => {
-    if (window.confirm(t('confirmDelete'))) {
+    if (await confirm(t('confirmDelete'), { confirmLabel: t('Delete') })) {
       await deleteDoc(doc(db, 'products', id));
       loadProducts();
     }

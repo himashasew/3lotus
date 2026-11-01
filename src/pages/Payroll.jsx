@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useUI } from '../context/UIContext';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDoc, addDocs, updateDoc, deleteDoc, doc, query, where, db } from '../services/data';
 import { calcPay, currentMonth, money, today, PAY_TYPES, DEFAULT_RATES } from '../lib/payroll';
@@ -9,6 +10,7 @@ import Payslip from '../components/Payslip';
 const EXTRA_KEYS = ['bonus', 'otherEarnings', 'advance', 'otherDeductions'];
 
 export default function Payroll() {
+  const { toast, confirm } = useUI();
   const { t } = useTranslation();
   const { company, rates, save: saveCompany } = useCompany();
   const [month, setMonth] = useState(currentMonth());
@@ -92,10 +94,10 @@ export default function Payroll() {
         else fresh.push(data);
       }
       await addDocs(collection(db, 'payroll'), fresh);
-      setMessage({ text: t('Payroll for {{month}} saved.', { month }), type: 'success' });
+      toast.success(t('Payroll for {{month}} saved.', { month }));
       await load();
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      toast.error(err.message);
     }
     setBusy(false);
   };
@@ -120,22 +122,22 @@ export default function Payroll() {
       const targets = payFor === 'all' ? lines.filter(l => !l.paid && l.pay.net > 0) : [payFor];
       for (const line of targets) await markPaid(line, payForm.date, payForm.method);
       setPayFor(null);
-      setMessage({ text: t('{{count}} salary payment(s) recorded and added to Finance as expenses.', { count: targets.length }), type: 'success' });
+      toast.success(t('{{count}} salary payment(s) recorded and added to Finance as expenses.', { count: targets.length }));
       await load();
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      toast.error(err.message);
     }
     setBusy(false);
   };
 
   const undoPaid = async (line) => {
-    if (!window.confirm(`Mark ${line.emp.name}'s salary as unpaid and remove the Finance expense?`)) return;
+    if (!await confirm(t("Mark {{name}}'s salary as unpaid and remove the Finance expense?", { name: line.emp.name }), { confirmLabel: t('Undo payment') })) return;
     try {
       if (line.savedDoc.financeId) await deleteDoc(doc(db, 'finance', line.savedDoc.financeId));
       await updateDoc(doc(db, 'payroll', line.savedDoc.id), { status: 'draft', paidDate: '', paidMethod: '', financeId: '' });
       await load();
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      toast.error(err.message);
     }
   };
 
@@ -143,19 +145,19 @@ export default function Payroll() {
     const epf = totals.epfEmployee + totals.epfEmployer;
     const etf = totals.etfEmployer;
     if (epf + etf <= 0) return;
-    if (!window.confirm(`Record EPF (Rs. ${money(epf)}) and ETF (Rs. ${money(etf)}) remittance for ${month} in Finance?`)) return;
+    if (!await confirm(t('Record EPF (Rs. {{epf}}) and ETF (Rs. {{etf}}) remittance for {{month}} in Finance?', { epf: money(epf), etf: money(etf), month }), { danger: false, confirmLabel: t('Record') })) return;
     try {
       const existing = await getDocs(query(collection(db, 'finance'), where('sourceId', '==', `statutory-${month}`)));
-      if (existing.docs.length > 0) { setMessage({ text: t('EPF/ETF for this month is already recorded in Finance.'), type: 'error' }); return; }
+      if (existing.docs.length > 0) { toast.error(t('EPF/ETF for this month is already recorded in Finance.')); return; }
       const when = today();
       const base = { type: 'expense', date: when, method: 'Bank', source: 'statutory', sourceId: `statutory-${month}`, createdAt: new Date().toISOString() };
       const entries = [];
       if (epf > 0) entries.push({ ...base, category: 'EPF / ETF', description: `EPF contribution 20% (${month})`, amount: Math.round(epf * 100) / 100 });
       if (etf > 0) entries.push({ ...base, category: 'EPF / ETF', description: `ETF contribution 3% (${month})`, amount: Math.round(etf * 100) / 100 });
       await addDocs(collection(db, 'finance'), entries);
-      setMessage({ text: t('EPF/ETF remittance recorded in Finance.'), type: 'success' });
+      toast.success(t('EPF/ETF remittance recorded in Finance.'));
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      toast.error(err.message);
     }
   };
 
@@ -167,7 +169,7 @@ export default function Payroll() {
       await saveCompany({ ...company, payroll });
       setShowRates(false);
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      toast.error(err.message);
     }
   };
 

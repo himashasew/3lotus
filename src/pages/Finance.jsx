@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useUI } from '../context/UIContext';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, db } from '../services/data';
 import { money, currentMonth, today } from '../lib/payroll';
@@ -17,6 +18,7 @@ const monthOf = (d) => (d || '').slice(0, 7);
 const csvCell = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
 
 export default function Finance() {
+  const { toast, confirm } = useUI();
   const { t } = useTranslation();
   const [records, setRecords] = useState([]);
   const [invoices, setInvoices] = useState([]);
@@ -134,10 +136,10 @@ export default function Finance() {
 
   const handleDelete = async (r) => {
     if (r.source === 'payroll' || r.source === 'invoice') {
-      window.alert(`This entry was created automatically from ${r.source === 'payroll' ? 'Payroll' : 'an invoice'}. Undo it there instead.`);
+      toast.warning(r.source === 'payroll' ? t('This entry was created automatically from Payroll. Undo it there instead.') : t('This entry was created automatically from an invoice. Undo it there instead.'));
       return;
     }
-    if (window.confirm(t('confirmDelete'))) {
+    if (await confirm(t('confirmDelete'), { confirmLabel: t('Delete') })) {
       await deleteDoc(doc(db, 'finance', r.id));
       load();
     }

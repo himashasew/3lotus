@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useUI } from '../context/UIContext';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDocs, updateDoc, deleteDoc, doc, query, where, db } from '../services/data';
 import { STATUSES, LEAVE_TYPES, summarise, leaveTaken, defaultHours, daysInMonth, today, DEFAULT_RATES } from '../lib/payroll';
@@ -7,6 +8,7 @@ const pad = (n) => String(n).padStart(2, '0');
 
 export default function Attendance() {
   const { t, i18n } = useTranslation();
+  const { toast } = useUI();
   const locale = { en: 'en-GB', si: 'si-LK', ta: 'ta-LK' }[i18n.language] || 'en-GB';
   const [date, setDate] = useState(today());
   const [employees, setEmployees] = useState([]);
@@ -86,10 +88,10 @@ export default function Attendance() {
         else fresh.push(data);
       }
       await addDocs(collection(db, 'attendance'), fresh);
-      setMessage({ text: t('Attendance saved for {{date}}.', { date }), type: 'success' });
+      toast.success(t('Attendance saved for {{date}}.', { date }));
       await load();
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      toast.error(err.message);
     }
     setSaving(false);
   };

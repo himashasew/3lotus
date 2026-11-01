@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Sidebar from './Sidebar';
+import NotificationCenter from './NotificationCenter';
 
 export default function Layout() {
   const { i18n } = useTranslation();
@@ -28,12 +29,13 @@ export default function Layout() {
       <div className="main-content">
         <header className="top-bar">
           <div className="top-bar-left">
-            <button className="hamburger" onClick={() => setSidebarOpen(true)}>
+            <button className="hamburger" onClick={() => setSidebarOpen(true)} aria-label="Menu">
               ☰
             </button>
           </div>
 
           <div className="top-bar-right">
+            <NotificationCenter />
             <div className="lang-switcher">
               {languages.map((lang) => (
                 <button

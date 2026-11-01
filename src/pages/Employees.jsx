@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useUI } from '../context/UIContext';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, db } from '../services/data';
 import { PAY_TYPES, money } from '../lib/payroll';
@@ -15,6 +16,7 @@ const rateLabel = (payType) =>
   payType === 'daily' ? 'Daily wage (Rs. per day)' : payType === 'hourly' ? 'Hourly rate (Rs. per hour)' : 'Monthly salary (Rs.)';
 
 export default function Employees() {
+  const { confirm } = useUI();
   const { t } = useTranslation();
   const [employees, setEmployees] = useState([]);
   const [search, setSearch] = useState('');
@@ -69,7 +71,7 @@ export default function Employees() {
   };
 
   const handleDelete = async (id) => {
-    if (window.confirm(t('confirmDelete'))) {
+    if (await confirm(t('confirmDelete'), { confirmLabel: t('Delete') })) {
       await deleteDoc(doc(db, 'employees', id));
       loadEmployees();
     }

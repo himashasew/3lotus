@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useUI } from '../context/UIContext';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, db } from '../services/data';
 import { today } from '../lib/payroll';
@@ -13,6 +14,7 @@ const BLANK = {
 };
 
 export default function Letters() {
+  const { toast, confirm } = useUI();
   const { t } = useTranslation();
   const { company, save: saveCompany, error: companyError } = useCompany();
   const { hasAccess } = useAuth();
@@ -52,9 +54,9 @@ export default function Letters() {
     try {
       const { addressText, ...rest } = co;
       await saveCompany({ ...rest, addressLines: addressText.split('\n').map(s => s.trim()).filter(Boolean) });
-      setMessage({ text: t('Company details saved. They now appear on invoices, payslips and letters.'), type: 'success' });
+      toast.success(t('Company details saved. They now appear on invoices, payslips and letters.'));
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      toast.error(err.message);
     }
     setBusy(false);
   };
@@ -67,10 +69,10 @@ export default function Letters() {
       const data = { ...form, name: form.name || form.subject || `Letter ${form.date}`, updatedAt: new Date().toISOString() };
       if (letterId) await updateDoc(doc(db, 'letterheads', letterId), data);
       else setLetterId((await addDoc(collection(db, 'letterheads'), { ...data, createdAt: new Date().toISOString() })).id);
-      setMessage({ text: t('Letter saved.'), type: 'success' });
+      toast.success(t('Letter saved.'));
       await loadLetters();
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      toast.error(err.message);
     }
     setBusy(false);
   };
@@ -78,7 +80,7 @@ export default function Letters() {
   const openLetter = (l) => { const { id, ...rest } = l; setForm({ ...BLANK, ...rest }); setLetterId(id); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const newLetter = () => { setForm({ ...BLANK, date: today() }); setLetterId(null); };
   const removeLetter = async (l) => {
-    if (!window.confirm(`Delete "${l.name}"?`)) return;
+    if (!await confirm(t('Delete "{{name}}"?', { name: l.name }), { confirmLabel: t('Delete') })) return;
     await deleteDoc(doc(db, 'letterheads', l.id));
     if (letterId === l.id) newLetter();
     loadLetters();

@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+import { useUI } from '../context/UIContext';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, doc, updateDoc, deleteDoc } from '../services/data';
 import { db } from '../services/data';
 import { useAuth, ROLES } from '../context/AuthContext';
 
 export default function UserManagement() {
+  const { confirm } = useUI();
   const { t } = useTranslation();
   const { createNewUser, hasAccess } = useAuth();
   const [users, setUsers] = useState([]);
@@ -48,7 +50,7 @@ export default function UserManagement() {
   };
 
   const deleteUser = async (userId) => {
-    if (window.confirm(t('confirmDelete'))) {
+    if (await confirm(t('confirmDelete'), { confirmLabel: t('Delete') })) {
       await deleteDoc(doc(db, 'users', userId));
       loadUsers();
     }

@@ -1,8 +1,5 @@
-import { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { collection, query, orderBy, limit, onSnapshot, doc, updateDoc } from '../services/data';
-import { db } from '../services/data';
 import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar({ isOpen, onClose }) {
@@ -37,63 +34,15 @@ export default function Sidebar({ isOpen, onClose }) {
     return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
   };
 
-  const [notifications, setNotifications] = useState([]);
-  const [showNotif, setShowNotif] = useState(false);
-
-  const isAdmin = hasAccess('ADMIN');
-
-  useEffect(() => {
-    if (!isAdmin) return;
-    const q = query(collection(db, 'notifications'), orderBy('timestamp', 'desc'), limit(15));
-    return onSnapshot(q, (snap) => {
-      setNotifications(snap.docs.map(d => ({ id: d.id, ...d.data() })));
-    });
-  }, [isAdmin]);
-
-  const unreadCount = notifications.filter(n => !n.read).length;
-
-  const markAsRead = async (id) => {
-    setNotifications(prev => prev.map(n => (n.id === id ? { ...n, read: true } : n)));
-    await updateDoc(doc(db, 'notifications', id), { read: true });
-  };
-
   return (
     <>
       <div className={`sidebar-overlay ${isOpen ? 'open' : ''}`} onClick={onClose} />
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-        <div className="sidebar-header" style={{ position: 'relative' }}>
+        <div className="sidebar-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <img src="/3 lotus.svg" alt={t('3 Lotus')} />
             <h2>{t('3 Lotus')}</h2>
           </div>
-          {hasAccess('ADMIN') && (
-            <div className="notif-bell" onClick={() => setShowNotif(!showNotif)} style={{ cursor: 'pointer', position: 'relative', fontSize: '1.25rem' }}>
-              🔔
-              {unreadCount > 0 && (
-                <span style={{ position: 'absolute', top: -5, right: -5, background: 'var(--color-danger)', color: '#fff', fontSize: '0.65rem', padding: '2px 5px', borderRadius: '10px', fontWeight: 'bold' }}>
-                  {unreadCount}
-                </span>
-              )}
-            </div>
-          )}
-
-          {showNotif && (
-            <div className="notif-dropdown">
-              <div className="notif-header">
-                {t('notifications') || 'Notifications'}
-              </div>
-              {notifications.length > 0 ? notifications.map(n => (
-                <div key={n.id} onClick={() => markAsRead(n.id)} className={`notif-item ${n.read ? 'read' : 'unread'}`}>
-                  <div className="notif-title">{n.title}</div>
-                  <div className="notif-message">{n.message}</div>
-                </div>
-              )) : (
-                <div className="notif-empty">
-                  {t('noNotifications') || 'No notifications'}
-                </div>
-              )}
-            </div>
-          )}
         </div>
 
         <nav className="sidebar-nav">

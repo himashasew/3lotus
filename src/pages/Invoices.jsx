@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useUI } from '../context/UIContext';
 import { useTranslation } from 'react-i18next';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, db } from '../services/data';
 import { money, today } from '../lib/payroll';
@@ -22,6 +23,7 @@ const effectiveStatus = (inv) => {
 const STATUS_STYLE = { draft: 'cooking', sent: 'cooking', partial: 'cooking', overdue: 'cancelled', paid: 'completed', cancelled: 'cancelled' };
 
 export default function Invoices() {
+  const { toast, confirm } = useUI();
   const { t } = useTranslation();
   const { company } = useCompany();
   const [invoices, setInvoices] = useState([]);
@@ -111,9 +113,9 @@ export default function Invoices() {
       });
       await load();
       setEditing(prev => ({ ...prev, clientId: ref.id }));
-      setMessage({ text: t('{{name}} saved to Clients.', { name: editing.clientName }), type: 'success' });
+      toast.success(t('{{name}} saved to Clients.', { name: editing.clientName }));
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      toast.error(err.message);
     }
   };
 
@@ -155,10 +157,10 @@ export default function Invoices() {
   const meal = editing && isMealInvoice(editing);
 
   const save = async (status) => {
-    if (!editing.clientName.trim()) { setMessage({ text: t('Enter or choose a client name.'), type: 'error' }); return null; }
+    if (!editing.clientName.trim()) { toast.error(t('Enter or choose a client name.')); return null; }
     if (meal) {
-      if (!editing.mealRows.some(r => Number(r.bQty) > 0 || Number(r.oQty) > 0)) { setMessage({ text: t('Enter at least one day with a quantity.'), type: 'error' }); return null; }
-    } else if (!editing.items.some(i => i.description.trim())) { setMessage({ text: t('Add at least one item.'), type: 'error' }); return null; }
+      if (!editing.mealRows.some(r => Number(r.bQty) > 0 || Number(r.oQty) > 0)) { toast.error(t('Enter at least one day with a quantity.')); return null; }
+    } else if (!editing.items.some(i => i.description.trim())) { toast.error(t('Add at least one item.')); return null; }
     setBusy(true);
     try {
       const t = invoiceTotals(editing);
@@ -185,12 +187,12 @@ export default function Invoices() {
       let savedId = id;
       if (id) await updateDoc(doc(db, 'invoices', id), data);
       else savedId = (await addDoc(collection(db, 'invoices'), { ...data, createdAt: new Date().toISOString() })).id;
-      setMessage({ text: t('Invoice {{number}} saved.', { number: data.number }), type: 'success' });
+      toast.success(t('Invoice {{number}} saved.', { number: data.number }));
       await load();
       setBusy(false);
       return { ...data, id: savedId };
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      toast.error(err.message);
       setBusy(false);
       return null;
     }
@@ -223,21 +225,21 @@ export default function Invoices() {
         paidAmount, status: paidAmount >= total ? 'paid' : 'partial', paymentDate: payForm.date,
       });
       setPayFor(null);
-      setMessage({ text: t('Payment recorded and added to Finance as income.'), type: 'success' });
+      toast.success(t('Payment recorded and added to Finance as income.'));
       await load();
     } catch (err) {
-      setMessage({ text: err.message, type: 'error' });
+      toast.error(err.message);
     }
     setBusy(false);
   };
 
   const markSent = async (inv) => { await updateDoc(doc(db, 'invoices', inv.id), { status: 'sent' }); load(); };
   const cancelInvoice = async (inv) => {
-    if (window.confirm(`Cancel invoice ${inv.number}?`)) { await updateDoc(doc(db, 'invoices', inv.id), { status: 'cancelled' }); load(); }
+    if (await confirm(t('Cancel invoice {{number}}?', { number: inv.number }), { confirmLabel: t('Cancel invoice') })) { await updateDoc(doc(db, 'invoices', inv.id), { status: 'cancelled' }); load(); }
   };
   const remove = async (inv) => {
-    if ((Number(inv.paidAmount) || 0) > 0) { window.alert(t('This invoice has payments recorded in Finance. Cancel it instead of deleting.')); return; }
-    if (window.confirm(`Delete invoice ${inv.number}?`)) { await deleteDoc(doc(db, 'invoices', inv.id)); load(); }
+    if ((Number(inv.paidAmount) || 0) > 0) { toast.warning(t('This invoice has payments recorded in Finance. Cancel it instead of deleting.')); return; }
+    if (await confirm(t('Delete invoice {{number}}?', { number: inv.number }), { confirmLabel: t('Delete') })) { await deleteDoc(doc(db, 'invoices', inv.id)); load(); }
   };
 
   const clientNames = useMemo(() => [...new Set(invoices.map(i => i.clientName).filter(Boolean))].sort(), [invoices]);
